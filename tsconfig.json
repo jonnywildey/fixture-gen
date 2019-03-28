@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "strict": true, /* Enable all strict type-checking options. */
+    "moduleResolution": "node"
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

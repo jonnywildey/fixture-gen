@@ -1,0 +1,19 @@
+{
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "rulesDirectory": ["tslint-plugin-prettier"],
+  "rules": {
+    "prettier": true,
+    "arrow-parens": [true, "ban-single-arg-parens"],
+    "jsx-no-lambda": false,
+    "indent": [
+      true,
+      "spaces",
+      2
+    ],
+    "max-line-length": [true, 180],
+    "member-ordering": [false],
+    "object-literal-sort-keys": false,
+    "object-literal-key-quotes": ["as-needed"],
+    "trailing-comma": [true, { "multiline": "never", "singleline": "never" }]
+  }
+}
