@@ -1,31 +1,4 @@
 
-// DTO INTERFACE
-
-export interface IAdditionalPropertiesDTO {
-  applicationId: string;
-  additionalProperties: IAdditionalPropertyDTO[];
-}
-
-export interface IAdditionalProperty {
-  id: string;
-  propertyId?: string;
-  address: IProperty;
-  currentUsage: Usage | null;
-  currentUsageOther: string | null;
-  secondaryResidenceUsage: string | null;
-  owner: Owner | null;
-  currentValue: number | null;
-  isIntendingToSell: boolean | null;
-  hasMortgage: boolean | null;
-  rent: IRent | null;
-  editReason?: string;
-  editedByStaffId?: string;
-}
-
-export interface IAdditionalPropertyDTO extends IAdditionalProperty {
-  createdOn: string;
-  updatedOn: string | null;
-}
 
 export interface IApplicationPropertyDTO {
   // id here refers to the id of a record that exists in the base property table

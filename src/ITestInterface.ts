@@ -15,12 +15,20 @@ export interface ITestInterface {
   l: IBox[];
   // tslint:disable-next-line: array-type
   m: Array<ISphere>;
+  n: IBoxHolder;
+  o: string | null;
+  p: string | undefined;
+  q: null;
 }
 
 export interface IBox {
   color: IColor;
   height: number;
   width: number;
+}
+
+export interface IBoxHolder {
+  box: IBox;
 }
 
 export type ISphere = {

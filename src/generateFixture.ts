@@ -87,6 +87,21 @@ const generateNodeValue = ({
     );
   }
 
+  // Check for Union Types
+  if (kind === ts.SyntaxKind.UnionType) {
+    const unionTypes: any[] = (node as any).type.types;
+    const allTypes = unionTypes.map( (unionType) => generateNodeValue({
+      kind: unionType.kind,
+      name,
+      node: unionType,
+      typeChecker,
+      valueGenerator
+    }) )
+    // TODO - randomize
+    return allTypes[0];
+  }
+
+
   // Is a reference to some other type
   if (kind === ts.SyntaxKind.TypeReference) {
 
@@ -126,8 +141,10 @@ const generateNodeValue = ({
       typeDeclaration.kind === ts.SyntaxKind.EnumDeclaration
     ) {
       const enumMembers = type.symbol.exports!;
+      const enumName = type.symbol.name;
       const enumKeys: any[] = [];
-      enumMembers.forEach((_value, key) => enumKeys.push(key));
+      // TODO - kind of faking the symbol
+      enumMembers.forEach((_value, key) => enumKeys.push(`${enumName}.${key}`));
       // TODO - randomize
       return enumKeys[0];
       // return chance.pickone(enumKeys);
