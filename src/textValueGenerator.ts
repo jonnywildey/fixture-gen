@@ -1,5 +1,5 @@
 import Chance from "chance";
-import { ValueGenerator } from "./interfaces";
+import { PrimitiveGenerator, IValueGenerator } from "./interfaces";
 import ts from "typescript";
 
 export type IChance = InstanceType<typeof Chance>;
@@ -48,7 +48,7 @@ const matchesDate = (name: string) => {
   );
 };
 
-const primitiveGenerator = ({
+const generatePrimitive = ({
   kind,
   name,
   chance,
@@ -113,16 +113,11 @@ const primitiveGenerator = ({
   return chance.guid();
 };
 
-const chanceReplacer = (chance: IChance): ValueGenerator => ({
-  kind,
-  name,
-}) => {
-  return primitiveGenerator({
-    kind,
-    name,
-    chance,
-  });
-};
+const chanceReplacer = (chance: IChance): IValueGenerator => ({
+  generatePrimitive: params => generatePrimitive({ chance, ...params }),
+  generateArrayLength: () => chance.integer({ min: 1, max: 3 }),
+  selectFromArray: (array) => chance.pickone(array)
+});
 
 export const textValueGeneratorBuilder = (seed?: number) => {
   const chance = seed ? new Chance(seed) : new Chance();

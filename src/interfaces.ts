@@ -9,7 +9,15 @@ export type InterfacePropertyNode =
   | ts.TypeAliasDeclaration
   | ts.PropertySignature;
 
-export type ValueGenerator = (params: {
+export type PrimitiveGenerator = (params: {
   kind: ts.SyntaxKind;
   name: string;
 }) => any;
+
+
+export interface IValueGenerator {
+  generateArrayLength: () => number;
+  selectFromArray: <T>(array: Array<T>) => T;
+  generatePrimitive: PrimitiveGenerator;
+
+}
