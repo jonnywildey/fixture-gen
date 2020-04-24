@@ -1,7 +1,6 @@
 import Chance from "chance";
 import { ValueGenerator } from "./interfaces";
 import ts, { SyntaxKind } from "typescript";
-import { type } from "os";
 
 export type IChance = InstanceType<typeof Chance>;
 
@@ -22,7 +21,7 @@ const matchesDate = (name: string) => {
 const elementReplacer = ({
   kind,
   name,
-  chance
+  chance,
 }: {
   kind: ts.SyntaxKind;
   name: string;
@@ -35,7 +34,7 @@ const elementReplacer = ({
     if (matchesDate(name)) {
       return (chance.date({
         max: new Date(2524608000000), // Latest year is 2050
-        min: new Date(-631152000000) // Earliest year is 1950
+        min: new Date(-631152000000), // Earliest year is 1950
       }) as Date).toISOString();
     }
     return chance.word();
@@ -52,7 +51,10 @@ const elementReplacer = ({
   return chance.guid();
 };
 
-const chanceReplacer = (chance: IChance): ValueGenerator => (node: any) => {
+const chanceReplacer = (chance: IChance): ValueGenerator => ({
+  node,
+  typeChecker,
+}) => {
   if (!node.type) {
     return;
   }
@@ -67,7 +69,7 @@ const chanceReplacer = (chance: IChance): ValueGenerator => (node: any) => {
       elementReplacer({
         chance,
         kind: elementKind,
-        name
+        name,
       })
     );
   }
@@ -82,17 +84,29 @@ const chanceReplacer = (chance: IChance): ValueGenerator => (node: any) => {
         elementReplacer({
           chance,
           kind: elementKind,
-          name
+          name,
         })
       );
     }
-    return "enum";
+    const type = typeChecker.getTypeAtLocation(node);
+    const typeDeclaration =
+      type.symbol.declarations && type.symbol.declarations[0];
+    if (
+      typeDeclaration &&
+      typeDeclaration.kind === ts.SyntaxKind.EnumDeclaration
+    ) {
+      const enumMembers = type.symbol.exports!;
+      const enumKeys: any[] = [];
+      enumMembers.forEach((_value, key) => enumKeys.push(key));
+      return chance.pickone(enumKeys);
+    }
+    return "?";
   }
 
   return elementReplacer({
     kind,
     name,
-    chance
+    chance,
   });
 };
 

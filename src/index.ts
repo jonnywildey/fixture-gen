@@ -37,7 +37,7 @@ const generateFixture = ({ interfaceNode, valueGenerator, typeChecker }: {
           typeChecker
         });
       } else {
-        fixtureObject[name] = valueGenerator(node);
+        fixtureObject[name] = valueGenerator({ node, typeChecker});
       }
     }
   });

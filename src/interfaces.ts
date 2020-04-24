@@ -9,4 +9,7 @@ export type InterfacePropertyNode =
   | ts.TypeAliasDeclaration
   | ts.PropertySignature;
 
-export type ValueGenerator = (node: InterfacePropertyNode) => any;
+export type ValueGenerator = (params: {
+  node: any;
+  typeChecker: ts.TypeChecker;
+}) => any;
