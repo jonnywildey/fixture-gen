@@ -51,66 +51,11 @@ const elementReplacer = ({
   return chance.guid();
 };
 
+
 const chanceReplacer = (chance: IChance): ValueGenerator => ({
-  node,
-  typeChecker,
+  kind,
+  name,
 }) => {
-  if (!node.type) {
-    return;
-  }
-  const kind: ts.SyntaxKind = node.type.kind;
-  const name: string = node.name.text;
-
-  if (kind === ts.SyntaxKind.ArrayType) {
-    const randomArrayLength = chance.integer({ min: 1, max: 3 });
-    const elementKind = node.type.elementType.kind;
-    const array = new Array(randomArrayLength).fill("");
-    return array.map(() =>
-      elementReplacer({
-        chance,
-        kind: elementKind,
-        name,
-      })
-    );
-  }
-
-  if (kind === ts.SyntaxKind.TypeReference) {
-    const typeName = node.type.typeName && node.type.typeName.text;
-    if (typeName === "Array") {
-      const randomArrayLength = chance.integer({ min: 1, max: 3 });
-      const elementKind = node.type.typeArguments[0].kind;
-      const array = new Array(randomArrayLength).fill("");
-      return array.map(() =>
-        elementReplacer({
-          chance,
-          kind: elementKind,
-          name,
-        })
-      );
-    }
-    const type = typeChecker.getTypeAtLocation(node);
-    const typeDeclaration =
-      type.symbol.declarations && type.symbol.declarations[0];
-    // is enum
-    if (
-      typeDeclaration &&
-      typeDeclaration.kind === ts.SyntaxKind.EnumDeclaration
-    ) {
-      const enumMembers = type.symbol.exports!;
-      const enumKeys: any[] = [];
-      enumMembers.forEach((_value, key) => enumKeys.push(key));
-      return chance.pickone(enumKeys);
-    }
-    if (
-      (typeDeclaration &&
-        typeDeclaration.kind === ts.SyntaxKind.InterfaceDeclaration) ||
-      typeDeclaration.kind === ts.SyntaxKind.TypeLiteral
-    ) {
-      return typeDeclaration.getText();
-    }
-    return "?";
-  }
-
   return elementReplacer({
     kind,
     name,

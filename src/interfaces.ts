@@ -10,6 +10,6 @@ export type InterfacePropertyNode =
   | ts.PropertySignature;
 
 export type ValueGenerator = (params: {
-  node: any;
-  typeChecker: ts.TypeChecker;
+  kind: ts.SyntaxKind;
+  name: string;
 }) => any;

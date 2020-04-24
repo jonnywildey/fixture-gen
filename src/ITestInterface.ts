@@ -12,6 +12,9 @@ export interface ITestInterface {
   i: IColor;
   j: IBox;
   k: ISphere;
+  l: IBox[];
+  // tslint:disable-next-line: array-type
+  m: Array<ISphere>;
 }
 
 export interface IBox {
