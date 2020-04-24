@@ -1,5 +1,5 @@
 import Chance from "chance";
-import { PrimitiveGenerator, IValueGenerator } from "./interfaces";
+import { IValueGenerator } from "../interfaces";
 import ts from "typescript";
 
 export type IChance = InstanceType<typeof Chance>;

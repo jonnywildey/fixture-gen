@@ -1,4 +1,4 @@
-import { InterfacePropertyNode, IValueGenerator } from "./interfaces";
+import { InterfacePropertyNode, IValueGenerator } from "../interfaces";
 import ts = require("typescript");
 
 export type IFixtureObject = any;
@@ -6,14 +6,14 @@ export type IFixtureObject = any;
 export const generateFixture = ({
   interfaceNode,
   valueGenerator,
-  typeChecker
+  typeChecker,
 }: {
   interfaceNode: InterfacePropertyNode;
   valueGenerator: IValueGenerator;
   typeChecker: ts.TypeChecker;
 }): IFixtureObject => {
   const fixtureObject: IFixtureObject = {};
-  ts.forEachChild(interfaceNode,node => {
+  ts.forEachChild(interfaceNode, (node) => {
     if (!ts.isPropertySignature(node)) {
       return;
     }
@@ -25,7 +25,7 @@ export const generateFixture = ({
       kind,
       node,
       typeChecker,
-      valueGenerator
+      valueGenerator,
     });
   });
   return fixtureObject;
@@ -36,7 +36,7 @@ const generateNodeValue = ({
   name,
   kind,
   typeChecker,
-  valueGenerator,
+  valueGenerator
 }: {
   node: ts.PropertySignature;
   name: string;
@@ -54,7 +54,7 @@ const generateNodeValue = ({
     return generateFixture({
       interfaceNode: (node as any).type,
       valueGenerator,
-      typeChecker,
+      typeChecker
     });
   }
 
@@ -71,7 +71,7 @@ const generateNodeValue = ({
       return array.map(() =>
         valueGenerator.generatePrimitive({
           name,
-          kind: elementKind,
+          kind: elementKind
         })
       );
     }
@@ -81,7 +81,7 @@ const generateNodeValue = ({
         node: elementType,
         kind: elementKind,
         name,
-        typeChecker,
+        typeChecker
       })
     );
   }
@@ -89,13 +89,13 @@ const generateNodeValue = ({
   // Check for Union Types
   if (kind === ts.SyntaxKind.UnionType) {
     const unionTypes: any[] = (node as any).type.types;
-    const allTypes = unionTypes.map((unionType) =>
+    const allTypes = unionTypes.map(unionType =>
       generateNodeValue({
         kind: unionType.kind,
         name,
         node: unionType,
         typeChecker,
-        valueGenerator,
+        valueGenerator
       })
     );
     return valueGenerator.selectFromArray(allTypes);
@@ -119,7 +119,9 @@ const generateNodeValue = ({
       const array = new Array(randomArrayLength).fill("");
       // Basic type, can skip recursion
       if ((elementType as any).intrinsicName) {
-        return array.map(() => valueGenerator.generatePrimitive({ name, kind: elementKind }));
+        return array.map(() =>
+          valueGenerator.generatePrimitive({ name, kind: elementKind })
+        );
       }
       const elementNode = elementType.aliasSymbol!.declarations[0];
       return array.map(() =>
@@ -128,7 +130,7 @@ const generateNodeValue = ({
           node: elementNode as any,
           name,
           kind: elementKind,
-          typeChecker,
+          typeChecker
         })
       );
     }
@@ -155,7 +157,7 @@ const generateNodeValue = ({
       return generateFixture({
         interfaceNode,
         typeChecker,
-        valueGenerator,
+        valueGenerator
       });
     }
   }

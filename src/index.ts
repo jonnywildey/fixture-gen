@@ -1,8 +1,8 @@
 import { generateFixture } from "./generateFixture";
 import { getInterfaceIdentifiers } from "./getInterfaceIdentifiers";
-import { textValueGeneratorBuilder } from "./textValueGenerator";
+import { textValueGeneratorBuilder } from "./valueGenerators/textValueGenerator";
 
-const filename = "/Users/jonny/trussle/fixture-gen/src/ITestInterface.ts";
+const filename = "/Users/jonny/trussle/fixture-gen/src/IComplexTestInterface.ts";
 const interfaceName = "ITestInterface";
 
 const textValueGenerator = textValueGeneratorBuilder();
