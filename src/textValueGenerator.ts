@@ -91,6 +91,7 @@ const chanceReplacer = (chance: IChance): ValueGenerator => ({
     const type = typeChecker.getTypeAtLocation(node);
     const typeDeclaration =
       type.symbol.declarations && type.symbol.declarations[0];
+    // is enum
     if (
       typeDeclaration &&
       typeDeclaration.kind === ts.SyntaxKind.EnumDeclaration
@@ -99,6 +100,13 @@ const chanceReplacer = (chance: IChance): ValueGenerator => ({
       const enumKeys: any[] = [];
       enumMembers.forEach((_value, key) => enumKeys.push(key));
       return chance.pickone(enumKeys);
+    }
+    if (
+      (typeDeclaration &&
+        typeDeclaration.kind === ts.SyntaxKind.InterfaceDeclaration) ||
+      typeDeclaration.kind === ts.SyntaxKind.TypeLiteral
+    ) {
+      return typeDeclaration.getText();
     }
     return "?";
   }

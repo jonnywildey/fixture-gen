@@ -9,13 +9,26 @@ export interface ITestInterface {
   g: number[];
   // tslint:disable-next-line: array-type
   h: Array<string>;
-  i: ITestEnum;
+  i: IColor;
+  j: IBox;
+  k: ISphere;
 }
 
-export enum ITestEnum {
+export interface IBox {
+  color: IColor;
+  height: number;
+  width: number;
+}
+
+export type ISphere = {
+  color: IColor;
+  radius: number;
+};
+
+export enum IColor {
   RED = "RED",
   ORANGE = "ORANGE",
-  GREEN = "GREEN"
+  GREEN = "GREEN",
 }
 
 // tslint:disable-next-line: interface-over-type-literal
