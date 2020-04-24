@@ -1,136 +1,53 @@
-import { writeFileSync } from "fs";
-import * as ts from "typescript";
+import { getInterfaceIdentifiers } from "./getInterfaceIdentifiers";
+import { InterfacePropertyNode, ValueGenerator } from "./interfaces";
+import { textValueGeneratorBuilder } from "./textValueGenerator";
+import ts = require("typescript");
 
-function getTypeProperties(node: ts.Node) {
-  const propertyArray: ts.PropertyAssignment[] = [];
-  ts.forEachChild(node, cn => {
-    if (cn.kind === ts.SyntaxKind.TypeLiteral) {
-      return propertyArray.push(...getInterfaceProperties(cn));
+const filename = "/Users/jonny/trussle/fixture-gen/src/ITestInterface.ts";
+const interfaceName = "ITestInterface";
+
+const textValueGenerator = textValueGeneratorBuilder();
+
+const { interfaces, typeChecker } = getInterfaceIdentifiers(filename);
+
+/* given some interfaceDeclaration or property identifier
+  if children, iterate through
+
+*/
+
+const generateFixture = ({ interfaceNode, valueGenerator, typeChecker }: {
+  interfaceNode: InterfacePropertyNode;
+  valueGenerator: ValueGenerator;
+  typeChecker: ts.TypeChecker;
+}) => {
+  const fixtureObject: any = {};
+  ts.forEachChild(interfaceNode, (node) => {
+    if (ts.isPropertySignature(node)) {
+      const name = (node.name as any).text;
+
+      const hasMembers =
+        node.type &&
+        (node.type as any).members &&
+        (node.type as any).members.length > 0;
+
+      if (hasMembers) {
+        fixtureObject[name] = generateFixture({
+          interfaceNode: (node as any).type,
+          valueGenerator,
+          typeChecker
+        });
+      } else {
+        fixtureObject[name] = valueGenerator(node);
+      }
     }
   });
-  return propertyArray;
-}
+  return fixtureObject;
+};
 
-function getArrayLiterals(node: ts.Node) {
-  const literalArray: ts.Expression[] = [];
-  ts.forEachChild(node, cn => {
-    if (cn.kind === ts.SyntaxKind.ArrayType) {
-      return literalArray.push(...getArrayInterfaceProperties(cn));
-    }
-  });
-  return literalArray;
-}
-
-function getArrayInterfaceProperties(node: ts.Node) {
-  const literalArray: ts.Expression[] = [];
-  ts.forEachChild(node, cn => {
-    const lit = getArrayLiteral(cn);
-    if (lit) {
-      literalArray.push(lit);
-    }
-  });
-  return literalArray;
-}
-
-function getArrayLiteral(node: ts.Node) {
-  const type = node.kind;
-  switch (type) {
-    case ts.SyntaxKind.NumberKeyword:
-      return ts.createNumericLiteral("5");
-    case ts.SyntaxKind.BooleanKeyword:
-      return ts.createLiteral(true);
-    case ts.SyntaxKind.TypeLiteral:
-      return ts.createObjectLiteral(getTypeProperties(node));
-    // case ts.SyntaxKind.ArrayType:
-    //   return ts.createArrayLiteral([ts.createObjectLiteral(getArrayLiterals(node))])
-    case ts.SyntaxKind.StringKeyword:
-    default:
-      return ts.createStringLiteral("b");
-  }
-}
-
-function getInterfaceProperties(node: ts.Node) {
-  const propertyArray: ts.PropertyAssignment[] = [];
-  ts.forEachChild(node, cn => {
-    const prop = getInterfacePropertyAssignment(cn);
-    if (prop) {
-      propertyArray.push(prop);
-    }
-  });
-  return propertyArray;
-}
-
-function getInterfacePropertyAssignment(node: ts.Node) {
-  if (node.kind !== ts.SyntaxKind.PropertySignature) {
-    return undefined;
-  }
-  const name = (node as any).name;
-  const type = (node as any).type.kind;
-  switch (type) {
-    case ts.SyntaxKind.NumberKeyword:
-      return ts.createPropertyAssignment(name, ts.createNumericLiteral("5"));
-    case ts.SyntaxKind.BooleanKeyword:
-      return ts.createPropertyAssignment(name, ts.createLiteral(true));
-    case ts.SyntaxKind.TypeLiteral:
-      return ts.createPropertyAssignment(
-        name,
-        ts.createObjectLiteral(getTypeProperties(node))
-      );
-    case ts.SyntaxKind.ArrayType:
-      return ts.createPropertyAssignment(
-        name,
-        ts.createArrayLiteral(getArrayLiterals(node))
-      );
-    case ts.SyntaxKind.StringKeyword:
-    default:
-      return ts.createPropertyAssignment(name, ts.createStringLiteral("b"));
-  }
-}
-
-function generateFixture(node: ts.Node) {
-  const name = (node as any).name;
-  const fixtureName = ts.createIdentifier(`fixture${name.text}`);
-
-  if (node.kind !== ts.SyntaxKind.InterfaceDeclaration) {
-    throw new Error("Not interface");
-  }
-
-  const object = ts.createObjectLiteral(getInterfaceProperties(node), true);
-
-  const variable = ts.createVariableDeclaration(
-    fixtureName,
-    (node as any).name,
-    object
-  );
-  return ts.createVariableDeclarationList([variable], ts.NodeFlags.Const);
-}
-
-const sourceFile = ts.createSourceFile(
-  "ITestInterface",
-  `
-interface ITestInterface {
-  a: string;
-  b: number;
-  c: boolean;
-  d: {
-    e: number;
-    f: string;
-  };
-  g: number[];
-}
-`,
-  ts.ScriptTarget.Latest
-);
-
-const printer = ts.createPrinter({
-  newLine: ts.NewLineKind.LineFeed
+const fixture = generateFixture({
+  interfaceNode: interfaces[0],
+  typeChecker,
+  valueGenerator: textValueGenerator
 });
-const result = printer.printNode(
-  ts.EmitHint.Unspecified,
-  generateFixture(sourceFile.statements[0]),
-  sourceFile
-);
 
-writeFileSync(`${__dirname}/../build/test.ts`, result);
-
-console.log(result);
+console.log(JSON.stringify(fixture, undefined, 2));

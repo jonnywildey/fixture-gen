@@ -11,15 +11,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chance": "1.1.4",
     "fs": "0.0.1-security",
-    "prettier": "^1.16.4",
-    "typescript": "^3.3.4000"
+    "prettier": "2.0.5",
+    "typescript": "3.8.3"
   },
   "devDependencies": {
-    "@types/node": "^11.12.0",
-    "ts-node": "^6.0.3",
-    "tslint": "^5.14.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1"
+    "@types/chance": "1.0.10",
+    "@types/node": "13.13.2",
+    "ts-node": "8.9.0",
+    "tslint": "6.1.1",
+    "tslint-config-prettier": "1.18.0",
+    "tslint-plugin-prettier": "2.3.0"
   }
 }
