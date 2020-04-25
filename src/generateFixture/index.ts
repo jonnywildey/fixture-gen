@@ -1,5 +1,5 @@
 import { InterfacePropertyNode, IValueGenerator } from "../interfaces";
-import ts = require("typescript");
+import ts from "typescript";
 
 export type IFixtureObject = any;
 
@@ -105,7 +105,7 @@ const generateNodeValue = ({
   if (kind === ts.SyntaxKind.TypeReference) {
     const type = typeChecker.getTypeAtLocation(node);
     const typeDeclaration =
-      type.symbol.declarations && type.symbol.declarations[0];
+      type.symbol && type.symbol.declarations && type.symbol.declarations[0];
 
     const nodeType = node.type as any;
 
