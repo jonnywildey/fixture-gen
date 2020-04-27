@@ -1,8 +1,11 @@
 import Chance from "chance";
-import { IValueGenerator, FileStringGenerator } from "../interfaces";
+import { IValueGenerator, FileStringGenerator, LiteralGenerator } from "../interfaces";
 import ts from "typescript";
+import { printObject } from "./printObject";
 
 export type IChance = InstanceType<typeof Chance>;
+
+const wrapQuotes = (str: string) => `"${str}"`
 
 const matchesId = (name: string) => {
   return name.includes("Id") || name === "id";
@@ -59,39 +62,39 @@ const generatePrimitive = ({
 }) => {
   if (kind === ts.SyntaxKind.StringKeyword) {
     if (matchesId(name)) {
-      return chance.guid();
+      return wrapQuotes(chance.guid());
     }
     if (matchesDate(name)) {
-      return (chance.date({
+      return wrapQuotes((chance.date({
         max: new Date(2524608000000), // Latest year is 2050
         min: new Date(-631152000000), // Earliest year is 1950
-      }) as Date).toISOString();
+      }) as Date).toISOString());
     }
     if (matcheslastName(name)) {
-      return chance.first();
+      return wrapQuotes(chance.first());
     }
     if (matchesName(name)) {
-      return chance.first();
+      return wrapQuotes(chance.first());
     }
     if (matchesLine(name)) {
-      return chance.street();
+      return wrapQuotes(chance.street());
     }
     if (matchesPostcode(name)) {
-      return chance.postcode();
+      return wrapQuotes(chance.postcode());
     }
     if (matchesCity(name)) {
-      return chance.city();
+      return wrapQuotes(chance.city());
     }
     if (matchesCountry(name)) {
-      return chance.country();
+      return wrapQuotes(chance.country());
     }
     if (matchesPhone(name)) {
-      return chance.phone();
+      return wrapQuotes(chance.phone());
     }
     if (matchesEmail(name)) {
-      return chance.email();
+      return wrapQuotes(chance.email());
     }
-    return `${chance.word()} ${chance.word()}`;
+    return wrapQuotes(`${chance.word()} ${chance.word()}`);
   }
   if (kind === ts.SyntaxKind.NumberKeyword) {
     return chance.integer({ min: 0, max: 50 });
@@ -117,8 +120,18 @@ const generateFileString: FileStringGenerator = ({
   fixture,
   interfaceName
 }) => {
-  const fixtureString = JSON.stringify(fixture, undefined, 2);
+  const fixtureString = printObject(fixture);
   return `export const ${interfaceName}Fixture = ${fixtureString};`
+}
+
+const generateLiteral: LiteralGenerator = ({ kind, text }) => {
+  if (kind === ts.SyntaxKind.StringLiteral) {
+    return wrapQuotes(text);
+  }
+  if (kind === ts.SyntaxKind.NumericLiteral) {
+    return Number(text);
+  }
+  return text;
 }
 
 const chanceReplacer = (chance: IChance): IValueGenerator => ({
@@ -126,7 +139,8 @@ const chanceReplacer = (chance: IChance): IValueGenerator => ({
   generateArrayLength: () => chance.integer({ min: 1, max: 3 }),
   selectFromArray: (array) => chance.pickone(array),
   generateFilename: (interfaceName) => `${interfaceName}.fixture.ts`,
-  generateFileString
+  generateFileString,
+  generateLiteral
 });
 
 export const textValueGeneratorBuilder = (chance?: IChance) => {

@@ -12,15 +12,15 @@ describe("getTextValueFixture Tests", () => {
       chance,
     });
     expect(fixture.fixture).toEqual({
-      a: "ketbeun sim",
+      a: `"ketbeun sim"`,
       b: 17,
       c: true,
       d: {
         e: 31,
-        f: "zopefos aliituco",
+        f: `"zopefos aliituco"`,
       },
       g: [7, 40, 18],
-      h: ["nincu he", "numarsor ijukizes", "wunu wecmas"],
+      h: [`"nincu he"`, `"numarsor ijukizes"`, `"wunu wecmas"`],
       i: "IColor.GREEN",
       j: {
         color: "IColor.GREEN",
@@ -55,11 +55,12 @@ describe("getTextValueFixture Tests", () => {
           width: 43,
         },
       },
-      o: "rulvuv ti",
-      p: "os romnoci",
+      o: `"rulvuv ti"`,
+      p: `"os romnoci"`,
       q: null,
-      r: "GREEN",
-      s: "HOT_WATER"
+      r: `"GREEN"`,
+      s: `"HOT_WATER"`,
+      t: 5
     });
   });
 });

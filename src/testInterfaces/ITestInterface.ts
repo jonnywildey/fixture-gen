@@ -20,10 +20,12 @@ export interface ITestInterface {
   p: string | undefined;
   q: null;
   r: InlineColor
-  s: "TEA" | "COFFEE" | "HOT_WATER"
+  s: "TEA" | "COFFEE" | "HOT_WATER",
+  t: InlineWeird
 }
 
 export type InlineColor = "GREEN" | "BLUE" | "INDIGO";
+export type InlineWeird = 5 | "BLUE" | IBox;
 
 export interface IBox {
   color: IColor;

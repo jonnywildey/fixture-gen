@@ -6,14 +6,14 @@ export type IFixtureObject = any;
 export const generateFixture = ({
   interfaceNode,
   valueGenerator,
-  typeChecker
+  typeChecker,
 }: {
   interfaceNode: InterfacePropertyNode;
   valueGenerator: IValueGenerator;
   typeChecker: ts.TypeChecker;
 }): IFixtureObject => {
   const fixtureObject: IFixtureObject = {};
-  ts.forEachChild(interfaceNode,node => {
+  ts.forEachChild(interfaceNode, (node) => {
     if (!ts.isPropertySignature(node)) {
       return;
     }
@@ -25,7 +25,7 @@ export const generateFixture = ({
       kind,
       node,
       typeChecker,
-      valueGenerator
+      valueGenerator,
     });
   });
   return fixtureObject;
@@ -36,7 +36,7 @@ const generateNodeValue = ({
   name,
   kind,
   typeChecker,
-  valueGenerator,
+  valueGenerator
 }: {
   node: ts.PropertySignature;
   name: string;
@@ -55,7 +55,7 @@ const generateNodeValue = ({
       return generateFixture({
         interfaceNode: (node as any).type,
         valueGenerator,
-        typeChecker,
+        typeChecker
       });
     }
 
@@ -72,7 +72,7 @@ const generateNodeValue = ({
         return array.map(() =>
           valueGenerator.generatePrimitive({
             name,
-            kind: elementKind,
+            kind: elementKind
           })
         );
       }
@@ -82,7 +82,7 @@ const generateNodeValue = ({
           node: elementType,
           kind: elementKind,
           name,
-          typeChecker,
+          typeChecker
         })
       );
     }
@@ -90,13 +90,13 @@ const generateNodeValue = ({
     // Check for Union Types
     if (kind === ts.SyntaxKind.UnionType) {
       const unionTypes: any[] = (node as any).type.types;
-      const allTypes = unionTypes.map((unionType) =>
+      const allTypes = unionTypes.map(unionType =>
         generateNodeValue({
           kind: unionType.kind,
           name,
           node: unionType,
           typeChecker,
-          valueGenerator,
+          valueGenerator
         })
       );
       return valueGenerator.selectFromArray(allTypes);
@@ -104,7 +104,10 @@ const generateNodeValue = ({
 
     // Check for literal
     if (kind === ts.SyntaxKind.LiteralType) {
-      return (node as any).literal.text;
+      return valueGenerator.generateLiteral({
+        kind: (node as any).literal.kind,
+        text: (node as any).literal.text
+      });
     }
 
     // Is a reference to some other type
@@ -136,7 +139,7 @@ const generateNodeValue = ({
             node: elementNode as any,
             name,
             kind: elementKind,
-            typeChecker,
+            typeChecker
           })
         );
       }
@@ -165,13 +168,28 @@ const generateNodeValue = ({
         return generateFixture({
           interfaceNode,
           typeChecker,
-          valueGenerator,
+          valueGenerator
         });
       }
-      // if type has types (e.g. string union) return random type value
-      if ((type as any).types) {
-        const values = (type as any).types.map((t: any) => t.value);
-        return valueGenerator.selectFromArray(values);
+
+      // Maybe type only has aliasSymbol?
+      const typeAliasDeclaration =
+        type.aliasSymbol &&
+        type.aliasSymbol.declarations &&
+        type.aliasSymbol.declarations[0];
+      if (
+        typeAliasDeclaration &&
+        typeAliasDeclaration.kind === ts.SyntaxKind.TypeAliasDeclaration
+      ) {
+        const types: any[] = (type.aliasSymbol!.declarations[0] as any).type.types;
+        const selectedType = valueGenerator.selectFromArray(types);
+        return generateNodeValue({
+          kind: selectedType.kind,
+          name,
+          node: selectedType,
+          typeChecker,
+          valueGenerator
+        })
       }
     }
 
