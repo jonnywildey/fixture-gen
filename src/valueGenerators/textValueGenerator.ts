@@ -113,7 +113,7 @@ const generatePrimitive = ({
   }
 
   console.log(`Could not match kind ${kind}`);
-  return chance.guid();
+  return  wrapQuotes(chance.guid());
 };
 
 const generateFileString: FileStringGenerator = ({
