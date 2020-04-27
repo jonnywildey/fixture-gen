@@ -1,6 +1,7 @@
 ## Make interface searachable by string rather than just taking the first
 ## Tests?
 ## Make sure functions don't kill it
+## Look into union string types???
 ## Generator gracefully fails with weird types
 ## Generate correct filename
 ## Generate `export interface NAME`

@@ -14,10 +14,15 @@ export type PrimitiveGenerator = (params: {
   name: string;
 }) => any;
 
+export type FileStringGenerator = (params: {
+  fixture: any;
+  interfaceName: string;
+}) => string;
 
 export interface IValueGenerator {
   generateArrayLength: () => number;
   selectFromArray: <T>(array: Array<T>) => T;
   generatePrimitive: PrimitiveGenerator;
-
+  generateFilename: (interfaceName: string) => string;
+  generateFileString: FileStringGenerator;
 }

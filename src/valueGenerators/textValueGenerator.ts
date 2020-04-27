@@ -1,5 +1,5 @@
 import Chance from "chance";
-import { IValueGenerator } from "../interfaces";
+import { IValueGenerator, FileStringGenerator } from "../interfaces";
 import ts from "typescript";
 
 export type IChance = InstanceType<typeof Chance>;
@@ -113,10 +113,20 @@ const generatePrimitive = ({
   return chance.guid();
 };
 
+const generateFileString: FileStringGenerator = ({
+  fixture,
+  interfaceName
+}) => {
+  const fixtureString = JSON.stringify(fixture, undefined, 2);
+  return `export const ${interfaceName}Fixture = ${fixtureString};`
+}
+
 const chanceReplacer = (chance: IChance): IValueGenerator => ({
   generatePrimitive: params => generatePrimitive({ chance, ...params }),
   generateArrayLength: () => chance.integer({ min: 1, max: 3 }),
-  selectFromArray: (array) => chance.pickone(array)
+  selectFromArray: (array) => chance.pickone(array),
+  generateFilename: (interfaceName) => `${interfaceName}.fixture.ts`,
+  generateFileString
 });
 
 export const textValueGeneratorBuilder = (seed?: number) => {

@@ -3,7 +3,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import { dirname, join } from "path";
-import { getTextFixture } from "./getTextFixture";
+import { getTextValueFixture } from "./getTextValueFixture";
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
       "typescript",
       new TsFixtureGenerator(),
       {
-        providedCodeActionKinds: TsFixtureGenerator.providedCodeActionKinds,
+        providedCodeActionKinds: TsFixtureGenerator.providedCodeActionKinds
       }
     )
   );
@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
  */
 export class TsFixtureGenerator implements vscode.CodeActionProvider {
   public static readonly providedCodeActionKinds = [
-    vscode.CodeActionKind.Refactor
+    vscode.CodeActionKind.Refactor,
   ];
 
   public provideCodeActions(
@@ -43,18 +43,18 @@ export class TsFixtureGenerator implements vscode.CodeActionProvider {
       );
       fix.edit = new vscode.WorkspaceEdit();
       try {
-        const newPath = join(
-          dirname(document.uri.path),
-          "generator.fixture.ts"
-        );
+        // Get Fixture
+        const { fixtureFile, fixtureFilename } = getTextValueFixture({
+          filename: document.uri.path,
+          interfaceLine: line
+        });
+        // Create New File
+        const newPath = join(dirname(document.uri.path), fixtureFilename);
         const newUri = document.uri.with({ path: newPath });
-        const fixture = getTextFixture(document.uri.path);
-        fix.edit.createFile(newUri);
-        fix.edit.insert(
-          newUri,
-          new vscode.Position(0, 0),
-          JSON.stringify(fixture, undefined, 2)
-        );
+        fix.edit.createFile(newUri, {
+          ignoreIfExists: true
+        });
+        fix.edit.insert(newUri, new vscode.Position(0, 0), fixtureFile);
       } catch (error) {
         console.error(error);
       }
