@@ -129,8 +129,6 @@ const chanceReplacer = (chance: IChance): IValueGenerator => ({
   generateFileString
 });
 
-export const textValueGeneratorBuilder = (seed?: number) => {
-  const chance = seed ? new Chance(seed) : new Chance();
-
-  return chanceReplacer(chance);
+export const textValueGeneratorBuilder = (chance?: IChance) => {
+  return chanceReplacer(chance ? chance : new Chance());
 };

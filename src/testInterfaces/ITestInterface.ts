@@ -19,7 +19,10 @@ export interface ITestInterface {
   o: string | null;
   p: string | undefined;
   q: null;
+  r: InlineColor
 }
+
+export type InlineColor = "GREEN" | "BLUE" | "INDIGO";
 
 export interface IBox {
   color: IColor;

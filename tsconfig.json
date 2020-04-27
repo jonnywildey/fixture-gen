@@ -7,7 +7,8 @@
     "target": "es5",
     "outDir": "out",
     "types": [
-      "node"
+      "node",
+      "jest"
     ]
   },
   "include": [
