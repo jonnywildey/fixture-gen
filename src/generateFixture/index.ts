@@ -1,5 +1,5 @@
 import { InterfacePropertyNode, IValueGenerator } from "../interfaces";
-import ts from "typescript";
+import ts, { LiteralLikeNode } from "typescript";
 
 export type IFixtureObject = any;
 
@@ -102,6 +102,11 @@ const generateNodeValue = ({
       return valueGenerator.selectFromArray(allTypes);
     }
 
+    // Check for literal
+    if (kind === ts.SyntaxKind.LiteralType) {
+      return (node as any).literal.text;
+    }
+
     // Is a reference to some other type
     if (kind === ts.SyntaxKind.TypeReference) {
       const type = typeChecker.getTypeAtLocation(node);
@@ -154,7 +159,7 @@ const generateNodeValue = ({
       if (
         (typeDeclaration &&
           typeDeclaration.kind === ts.SyntaxKind.InterfaceDeclaration) ||
-        typeDeclaration.kind === ts.SyntaxKind.TypeLiteral
+        (typeDeclaration && typeDeclaration.kind === ts.SyntaxKind.TypeLiteral)
       ) {
         const interfaceNode = type.symbol.declarations[0] as any;
         return generateFixture({
@@ -163,12 +168,17 @@ const generateNodeValue = ({
           valueGenerator,
         });
       }
+      // if type has types (e.g. string union) return random type value
+      if ((type as any).types) {
+        const values = (type as any).types.map((t: any) => t.value);
+        return valueGenerator.selectFromArray(values);
+      }
     }
 
     // property is a primitive type
     return valueGenerator.generatePrimitive({ name, kind });
   } catch (err) {
-    console.log(`Error generating fixture for name ${name} kind ${kind}`)
+    console.log(`Error generating fixture for name ${name} kind ${kind}`);
     console.error(err);
     // return something
     return "";

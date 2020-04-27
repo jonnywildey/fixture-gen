@@ -20,6 +20,7 @@ export interface ITestInterface {
   p: string | undefined;
   q: null;
   r: InlineColor
+  s: "TEA" | "COFFEE" | "HOT_WATER"
 }
 
 export type InlineColor = "GREEN" | "BLUE" | "INDIGO";
