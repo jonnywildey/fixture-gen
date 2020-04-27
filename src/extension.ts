@@ -5,6 +5,8 @@ import * as vscode from "vscode";
 import { dirname, join } from "path";
 import { getTextValueFixture } from "./getTextValueFixture";
 
+const TEXT_VALUE_COMMAND = "ts-fixture-generator.generate-text-value-fixture";
+
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
@@ -20,6 +22,28 @@ export function activate(context: vscode.ExtensionContext) {
     "ts-fixture-generator"
   );
   context.subscriptions.push(fixtureDiagnostics);
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      TEXT_VALUE_COMMAND,
+      (document: vscode.TextDocument, line: string) => {
+        const edit = new vscode.WorkspaceEdit();
+        // Get Fixture
+        const { fixtureFile, fixtureFilename } = getTextValueFixture({
+          filename: document.uri.path,
+          interfaceLine: line
+        });
+        // Create New File
+        const newPath = join(dirname(document.uri.path), fixtureFilename);
+        const newUri = document.uri.with({ path: newPath });
+        edit.createFile(newUri, {
+          ignoreIfExists: true
+        });
+        edit.insert(newUri, new vscode.Position(0, 0), fixtureFile);
+        vscode.workspace.applyEdit(edit);
+      }
+    )
+  );
 }
 
 /**
@@ -41,55 +65,16 @@ export class TsFixtureGenerator implements vscode.CodeActionProvider {
         `Generate Fixture`,
         vscode.CodeActionKind.RefactorExtract
       );
-      fix.edit = new vscode.WorkspaceEdit();
-      try {
-        // Get Fixture
-        const { fixtureFile, fixtureFilename } = getTextValueFixture({
-          filename: document.uri.path,
-          interfaceLine: line
-        });
-        // Create New File
-        const newPath = join(dirname(document.uri.path), fixtureFilename);
-        const newUri = document.uri.with({ path: newPath });
-        fix.edit.createFile(newUri, {
-          ignoreIfExists: true
-        });
-        fix.edit.insert(newUri, new vscode.Position(0, 0), fixtureFile);
-      } catch (error) {
-        console.error(error);
-      }
+      fix.command = {
+        arguments: [document, line],
+        command: TEXT_VALUE_COMMAND,
+        title: `Generate Fixture`,
+        tooltip:
+          "This will create a fixture of the interface or type with random values",
+      };
       return [fix];
     }
 
     return [];
   }
 }
-
-// // this method is called when your extension is activated
-// // your extension is activated the very first time the command is executed
-// export function activate(context: vscode.ExtensionContext) {
-//   console.log("fixture-gen extension activated!");
-
-//   const provider1 = vscode.languages.registerCodeActionsProvider("typescript", {
-//     provideCodeActions: async (
-//       document: vscode.TextDocument,
-//       range: vscode.Range | vscode.Selection,
-//       context: vscode.CodeActionContext,
-//       token: vscode.CancellationToken
-//     ) => {
-//    const diagnostic: vscode.Diagnostic = context.diagnostics[0];
-//       return [
-//         {
-//           title: "Test 1",
-//           command: "Run",
-//           arguments: [document, diagnostic.range, diagnostic.message]
-//         }
-//       ];
-//     },
-//   });
-
-//   context.subscriptions.push(provider1);
-// }
-
-// // this method is called when your extension is deactivated
-// export function deactivate() {}
