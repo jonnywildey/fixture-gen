@@ -5,7 +5,7 @@ import ts from "typescript";
 export type IChance = InstanceType<typeof Chance>;
 
 const matchesId = (name: string) => {
-  return name.includes("Id");
+  return name.includes("Id") || name === "id";
 };
 const matcheslastName = (name: string) => {
   return name.includes("lastName");
