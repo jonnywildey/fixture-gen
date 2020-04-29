@@ -25,19 +25,19 @@ export const getChanceFixture = ({
   const typeChecker = program.getTypeChecker();
 
   const interfaceNode = findInterface({ filename, sourceFile, interfaceLine });
+  const interfaceType = typeChecker.getTypeAtLocation(interfaceNode);
+  const interfaceName = interfaceNode.name.text;
 
   // Get Fixture
   const fixture = generateFixture({
-    interfaceNode,
+    interfaceType,
     typeChecker,
     valueGenerator: chanceValueGenerator,
   });
-  const fixtureFilename = chanceValueGenerator.generateFilename(
-    interfaceNode.name.text
-  );
+  const fixtureFilename = chanceValueGenerator.generateFilename(interfaceName);
   const fixtureFile = chanceValueGenerator.generateFileString({
     value: fixture,
-    interfaceName: interfaceNode.name.text,
+    interfaceName,
   });
 
   return { fixtureFilename, fixtureFile, fixture };

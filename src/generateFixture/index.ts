@@ -1,20 +1,51 @@
-import { InterfacePropertyNode } from "../interfaces";
+import { InterfacePropertyNode, InterfaceishNode } from "../interfaces";
 import { IValueGenerator } from "../IValueGenerator";
 import ts from "typescript";
 
 export type IFixtureObject = any;
 
 export const generateFixture = ({
-  interfaceNode,
+  interfaceType,
   valueGenerator,
-  typeChecker
+  typeChecker,
 }: {
-  interfaceNode: InterfacePropertyNode;
+  interfaceType: ts.Type;
   valueGenerator: IValueGenerator;
   typeChecker: ts.TypeChecker;
 }): IFixtureObject => {
   const fixtureObject: IFixtureObject = {};
-  ts.forEachChild(interfaceNode,node => {
+
+  const properties = interfaceType.getProperties();
+
+  properties.forEach((nodeProperty) => {
+    const name = nodeProperty.name;
+    const node = nodeProperty.valueDeclaration;
+    if (!ts.isPropertySignature(node)) {
+      return;
+    }
+    fixtureObject[name] = generateNodeValue({
+      name,
+      kind: node.type!.kind,
+      node,
+      typeChecker,
+      valueGenerator,
+    });
+  });
+  return fixtureObject;
+};
+
+export const generateObject = ({
+  interfaceNode,
+  valueGenerator,
+  typeChecker,
+}: {
+  interfaceNode: InterfaceishNode;
+  valueGenerator: IValueGenerator;
+  typeChecker: ts.TypeChecker;
+}): IFixtureObject => {
+  const fixtureObject: IFixtureObject = {};
+
+  ts.forEachChild(interfaceNode, (node) => {
     if (!ts.isPropertySignature(node)) {
       return;
     }
@@ -26,7 +57,7 @@ export const generateFixture = ({
       kind,
       node,
       typeChecker,
-      valueGenerator
+      valueGenerator,
     });
   });
   return fixtureObject;
@@ -53,7 +84,7 @@ const generateNodeValue = ({
       (node.type as any).members.length > 0;
 
     if (hasMembers) {
-      return generateFixture({
+      return generateObject({
         interfaceNode: (node as any).type,
         valueGenerator,
         typeChecker,
@@ -65,18 +96,19 @@ const generateNodeValue = ({
       const elementKind = (node.type as any).elementType.kind;
       const elementType = (node.type as any).elementType;
 
-      const generateNode = () => generateNodeValue({
-        valueGenerator,
-        node: elementType,
-        name,
-        kind: elementKind,
-        typeChecker,
-      })
+      const generateNode = () =>
+        generateNodeValue({
+          valueGenerator,
+          node: elementType,
+          name,
+          kind: elementKind,
+          typeChecker,
+        });
 
       return valueGenerator.generateArray({
         generateNode,
         name,
-        kind
+        kind,
       });
     }
 
@@ -122,18 +154,19 @@ const generateNodeValue = ({
           ? elementType.aliasSymbol.declarations[0]
           : nodeType;
 
-        const generateNode = () => generateNodeValue({
-          valueGenerator,
-          node: elementNode,
-          name,
-          kind: elementKind,
-          typeChecker,
-        });
+        const generateNode = () =>
+          generateNodeValue({
+            valueGenerator,
+            node: elementNode,
+            name,
+            kind: elementKind,
+            typeChecker,
+          });
 
         return valueGenerator.generateArray({
           generateNode,
           name,
-          kind
+          kind,
         });
       }
 
@@ -147,7 +180,7 @@ const generateNodeValue = ({
 
         return valueGenerator.generateEnum({
           enumName,
-          enumMembers
+          enumMembers,
         });
       }
       // Check for other interfaces / types
@@ -157,7 +190,7 @@ const generateNodeValue = ({
         (typeDeclaration && typeDeclaration.kind === ts.SyntaxKind.TypeLiteral)
       ) {
         const interfaceNode = type.symbol.declarations[0] as any;
-        return generateFixture({
+        return generateObject({
           interfaceNode,
           typeChecker,
           valueGenerator,
@@ -173,16 +206,17 @@ const generateNodeValue = ({
         typeAliasDeclaration &&
         typeAliasDeclaration.kind === ts.SyntaxKind.TypeAliasDeclaration
       ) {
-
         const types: any[] = (type.aliasSymbol!.declarations[0] as any).type
           .types;
-        const values = types.map( t => generateNodeValue({
-          kind: t.kind,
-          name,
-          node: t,
-          typeChecker,
-          valueGenerator
-        }));
+        const values = types.map((t) =>
+          generateNodeValue({
+            kind: t.kind,
+            name,
+            node: t,
+            typeChecker,
+            valueGenerator,
+          })
+        );
 
         return valueGenerator.generateUnion(values);
       }

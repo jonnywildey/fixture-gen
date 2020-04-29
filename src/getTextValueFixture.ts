@@ -19,7 +19,6 @@ export const getTextValueFixture = ({
 }: IGetTextValueFixtureParams) => {
   const textValueGenerator = textValueGeneratorBuilder(chance);
 
-  // TODO - surely we can use the actual tsserver program?
   const program = ts.createProgram({
     rootNames: [filename],
     options: {},
@@ -28,10 +27,10 @@ export const getTextValueFixture = ({
   const typeChecker = program.getTypeChecker();
 
   const interfaceNode = findInterface({ filename, sourceFile, interfaceLine });
+  const interfaceType = typeChecker.getTypeAtLocation(interfaceNode);
 
-  // Get Fixture
   const fixture = generateFixture({
-    interfaceNode,
+    interfaceType,
     typeChecker,
     valueGenerator: textValueGenerator,
   });

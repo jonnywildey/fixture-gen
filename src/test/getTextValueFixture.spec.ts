@@ -60,7 +60,75 @@ describe("getTextValueFixture Tests", () => {
       q: null,
       r: `"GREEN"`,
       s: `"HOT_WATER"`,
-      t: 5
+      t: 5,
+    });
+  });
+
+  it("Returns correct values for IExtendTestInterface, including extended properties", () => {
+    const chance = Chance(6);
+
+    const fixture = getTextValueFixture({
+      filename:
+        "/Users/jonny/trussle/fixture-gen/src/testInterfaces/ITestInterface.ts",
+      interfaceLine: "IExtendTestInterface",
+      chance,
+    });
+    expect(fixture.fixture).toEqual({
+      a: '"tuzo hidwuw"',
+      b: 41,
+      c: true,
+      d: {
+        e: 21,
+        f: '"ativoaj wimdazme"',
+      },
+      g: [42],
+      h: ['"retzir ovehekzes"', '"wunu wecmas"', '"pemfikos me"'],
+      i: "IColor.ORANGE",
+      j: {
+        color: "IColor.GREEN",
+        height: 28,
+        width: 31,
+      },
+      k: {
+        color: "IColor.ORANGE",
+        radius: 45,
+      },
+      l: [
+        {
+          color: "IColor.GREEN",
+          height: 34,
+          width: 42,
+        },
+        {
+          color: "IColor.GREEN",
+          height: 9,
+          width: 24,
+        },
+      ],
+      m: [
+        {
+          color: "IColor.ORANGE",
+          radius: 24,
+        },
+        {
+          color: "IColor.RED",
+          radius: 20,
+        },
+      ],
+      n: {
+        box: {
+          color: "IColor.GREEN",
+          height: 37,
+          width: 50,
+        },
+      },
+      o: '"vidwema bik"',
+      p: '"rardep ufa"',
+      q: null,
+      r: '"BLUE"',
+      s: '"COFFEE"',
+      t: 5,
+      z: '"ketbeun sim"',
     });
   });
 });
