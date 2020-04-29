@@ -1,9 +1,8 @@
 import ts from "typescript";
 
-import { InterfaceishNode } from "./interfaces";
-
 import { generateFixture } from "./generateFixture";
 import { chanceValueGeneratorBuilder } from "./valueGenerators/chanceGenerator";
+import { findInterface } from "./findInterface";
 
 export interface IGetChanceFixtureParams {
   filename: string;
@@ -24,24 +23,9 @@ export const getChanceFixture = ({
   });
   const sourceFile = program.getSourceFile(filename)!;
   const typeChecker = program.getTypeChecker();
-  // filter for interface-like nodes
-  const interfaces: InterfaceishNode[] = [];
-  ts.forEachChild(sourceFile, (node) => {
-    if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) {
-      interfaces.push(node);
-    }
-  });
-  if (interfaces.length === 0) {
-    throw new Error(`No interfaces found in ${filename}`);
-  }
-  // find selected interface
-  const interfaceNameTokens = interfaceLine.split(" ");
-  const interfaceNode = interfaces.find((i) =>
-    interfaceNameTokens.includes(i.name.text)
-  );
-  if (!interfaceNode) {
-    throw new Error(`Could not find interface ${interfaceLine} in ${filename}`);
-  }
+
+  const interfaceNode = findInterface({ filename, sourceFile, interfaceLine });
+
   // Get Fixture
   const fixture = generateFixture({
     interfaceNode,
