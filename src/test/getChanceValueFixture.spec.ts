@@ -12,32 +12,24 @@ describe("getChanceFixture Tests", () => {
       chance
     });
     expect(fixture.fixture).toEqual({
-      a: "`${chance.word()} ${chance.word()}`",
+      a: "chance.string()",
       b: "chance.integer({ min: 0, max: 50 })",
       c: "chance.bool()",
       d: {
         e: "chance.integer({ min: 0, max: 50 })",
-        f: "`${chance.word()} ${chance.word()}`"
+        f: "chance.string()",
       },
-      g: [
-        "chance.integer({ min: 0, max: 50 })",
-        "chance.integer({ min: 0, max: 50 })",
-        "chance.integer({ min: 0, max: 50 })"
-      ],
-      h: [
-        "`${chance.word()} ${chance.word()}`",
-        "`${chance.word()} ${chance.word()}`",
-        "`${chance.word()} ${chance.word()}`"
-      ],
-      i: "IColor.RED",
+      g: ["chance.integer({ min: 0, max: 50 })"],
+      h: ["chance.string()"],
+      i: "IColor.GREEN",
       j: {
-        color: "IColor.RED",
+        color: "IColor.GREEN",
         height: "chance.integer({ min: 0, max: 50 })",
-        width: "chance.integer({ min: 0, max: 50 })"
+        width: "chance.integer({ min: 0, max: 50 })",
       },
       k: {
-        color: "IColor.GREEN",
-        radius: "chance.integer({ min: 0, max: 50 })"
+        color: "IColor.RED",
+        radius: "chance.integer({ min: 0, max: 50 })",
       },
       l: [
         {
@@ -48,27 +40,23 @@ describe("getChanceFixture Tests", () => {
       ],
       m: [
         {
-          color: "IColor.RED",
-          radius: "chance.integer({ min: 0, max: 50 })"
-        },
-        {
           color: "IColor.GREEN",
           radius: "chance.integer({ min: 0, max: 50 })"
         }
       ],
       n: {
         box: {
-          color: "IColor.ORANGE",
+          color: "IColor.RED",
           height: "chance.integer({ min: 0, max: 50 })",
-          width: "chance.integer({ min: 0, max: 50 })"
-        }
+          width: "chance.integer({ min: 0, max: 50 })",
+        },
       },
-      o: "`${chance.word()} ${chance.word()}`",
-      p: undefined,
+      o: "chance.string()",
+      p: "chance.string()",
       q: null,
-      r: '"BLUE"',
-      s: '"COFFEE"',
-      t: '"BLUE"',
+      r: '"GREEN"',
+      s: '"HOT_WATER"',
+      t: '"BLUE"'
     });
   });
 });

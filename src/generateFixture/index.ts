@@ -64,19 +64,20 @@ const generateNodeValue = ({
     if (kind === ts.SyntaxKind.ArrayType) {
       const elementKind = (node.type as any).elementType.kind;
       const elementType = (node.type as any).elementType;
-      // Create Array
-      const randomArrayLength = valueGenerator.generateArrayLength();
-      const array = new Array(randomArrayLength).fill("");
 
-      return array.map(() =>
-        generateNodeValue({
-          valueGenerator,
-          node: elementType,
-          kind: elementKind,
-          name,
-          typeChecker,
-        })
-      );
+      const generateNode = () => generateNodeValue({
+        valueGenerator,
+        node: elementType,
+        name,
+        kind: elementKind,
+        typeChecker,
+      })
+
+      return valueGenerator.generateArray({
+        generateNode,
+        name,
+        kind
+      });
     }
 
     // Check for Union Types
@@ -120,21 +121,20 @@ const generateNodeValue = ({
         const elementNode = elementType?.aliasSymbol?.declarations[0]
           ? elementType.aliasSymbol.declarations[0]
           : nodeType;
-        //
-        const randomArrayLength = valueGenerator.generateArrayLength();
-        const array = new Array(randomArrayLength).fill("");
 
+        const generateNode = () => generateNodeValue({
+          valueGenerator,
+          node: elementNode,
+          name,
+          kind: elementKind,
+          typeChecker,
+        })
 
-
-        return array.map(() =>
-          generateNodeValue({
-            valueGenerator,
-            node: elementNode,
-            name,
-            kind: elementKind,
-            typeChecker,
-          })
-        );
+        return valueGenerator.generateArray({
+          generateNode,
+          name,
+          kind
+        });
       }
 
       // Check for Enums

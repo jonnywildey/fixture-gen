@@ -3,6 +3,7 @@ import {
   IValueGenerator,
   FileStringGenerator,
   LiteralGenerator,
+  ArrayGenerator,
 } from "../interfaces";
 import ts from "typescript";
 import { printObject } from "./printObject";
@@ -95,7 +96,7 @@ const generatePrimitive = ({
     if (matchesEmail(name)) {
       return `chance.email()`;
     }
-    return "`${chance.word()} ${chance.word()}`";
+    return `chance.string()`;
   }
   if (kind === ts.SyntaxKind.NumberKeyword) {
     return `chance.integer({ min: 0, max: 50 })`;
@@ -138,9 +139,16 @@ const generateLiteral: LiteralGenerator = ({ kind, text }) => {
   return text;
 };
 
+const generateArray: ArrayGenerator = ({
+  generateNode,
+}) => {
+  const nodeValue = generateNode();
+  return [nodeValue];
+};
+
 const chanceReplacer = (chance: IChance): IValueGenerator => ({
   generatePrimitive: (params) => generatePrimitive({ chance, ...params }),
-  generateArrayLength: () => chance.integer({ min: 1, max: 3 }),
+  generateArray,
   selectFromArray:array => chance.pickone(array),
   generateFilename:interfaceName => `${interfaceName}.fixture.ts`,
   generateFileString,

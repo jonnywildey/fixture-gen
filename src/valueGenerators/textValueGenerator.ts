@@ -1,11 +1,16 @@
 import Chance from "chance";
-import { IValueGenerator, FileStringGenerator, LiteralGenerator } from "../interfaces";
+import {
+  IValueGenerator,
+  FileStringGenerator,
+  LiteralGenerator,
+  ArrayGenerator,
+} from "../interfaces";
 import ts from "typescript";
 import { printObject } from "./printObject";
 
 export type IChance = InstanceType<typeof Chance>;
 
-const wrapQuotes = (str: string) => `"${str}"`
+const wrapQuotes = (str: string) => `"${str}"`;
 
 const matchesId = (name: string) => {
   return name.includes("Id") || name === "id";
@@ -54,7 +59,7 @@ const matchesDate = (name: string) => {
 const generatePrimitive = ({
   kind,
   name,
-  chance,
+  chance
 }: {
   kind: ts.SyntaxKind;
   name: string;
@@ -65,10 +70,12 @@ const generatePrimitive = ({
       return wrapQuotes(chance.guid());
     }
     if (matchesDate(name)) {
-      return wrapQuotes((chance.date({
-        max: new Date(2524608000000), // Latest year is 2050
-        min: new Date(-631152000000), // Earliest year is 1950
-      }) as Date).toISOString());
+      return wrapQuotes(
+        (chance.date({
+          max: new Date(2524608000000), // Latest year is 2050
+          min: new Date(-631152000000) // Earliest year is 1950
+        }) as Date).toISOString()
+      );
     }
     if (matcheslastName(name)) {
       return wrapQuotes(chance.first());
@@ -113,16 +120,16 @@ const generatePrimitive = ({
   }
 
   console.log(`Could not match kind ${kind}`);
-  return  wrapQuotes(chance.guid());
+  return wrapQuotes(chance.guid());
 };
 
 const generateFileString: FileStringGenerator = ({
   fixture,
-  interfaceName
+  interfaceName,
 }) => {
   const fixtureString = printObject(fixture);
-  return `export const ${interfaceName}Fixture = ${fixtureString};`
-}
+  return `export const ${interfaceName}Fixture = ${fixtureString};`;
+};
 
 const generateLiteral: LiteralGenerator = ({ kind, text }) => {
   if (kind === ts.SyntaxKind.StringLiteral) {
@@ -132,15 +139,31 @@ const generateLiteral: LiteralGenerator = ({ kind, text }) => {
     return Number(text);
   }
   return text;
-}
+};
+
+export type ChanceArrayGenerator = (params: {
+  generateNode: () => any;
+  name: string;
+  kind: ts.SyntaxKind;
+  chance: IChance;
+}) => any;
+
+const generateArray: ChanceArrayGenerator = ({
+  generateNode,
+  chance,
+}) => {
+  const randomArrayLength = chance.integer({ min: 1, max: 3 });
+  const array = new Array(randomArrayLength).fill("");
+  return array.map(() => generateNode());
+};
 
 const chanceReplacer = (chance: IChance): IValueGenerator => ({
-  generatePrimitive: params => generatePrimitive({ chance, ...params }),
-  generateArrayLength: () => chance.integer({ min: 1, max: 3 }),
-  selectFromArray: (array) => chance.pickone(array),
-  generateFilename: (interfaceName) => `${interfaceName}.fixture.ts`,
+  generatePrimitive: (params) => generatePrimitive({ chance, ...params }),
+  selectFromArray:array => chance.pickone(array),
+  generateFilename:interfaceName => `${interfaceName}.fixture.ts`,
+  generateArray: (params) => generateArray({ chance, ...params}),
   generateFileString,
-  generateLiteral
+  generateLiteral,
 });
 
 export const textValueGeneratorBuilder = (chance?: IChance) => {

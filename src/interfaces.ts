@@ -24,8 +24,14 @@ export type FileStringGenerator = (params: {
   interfaceName: string;
 }) => string;
 
+export type ArrayGenerator = (params: {
+  generateNode: () => any;
+  name: string;
+  kind: ts.SyntaxKind;
+}) => any;
+
 export interface IValueGenerator {
-  generateArrayLength: () => number;
+  generateArray: ArrayGenerator;
   selectFromArray: <T>(array: Array<T>) => T;
   generateLiteral: LiteralGenerator;
   generatePrimitive: PrimitiveGenerator;
