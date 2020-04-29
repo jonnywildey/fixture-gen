@@ -9,52 +9,20 @@ import {
 } from "../IValueGenerator";
 import ts from "typescript";
 import { printObject } from "./printObject";
+import {
+  matchesCity,
+  matchesCountry,
+  matchesDate,
+  matchesEmail,
+  matchesId,
+  matchesLine,
+  matchesName,
+  matchesPhone,
+  matchesPostcode,
+  matcheslastName
+} from "./matchers";
 
 const wrapQuotes = (str: string) => `"${str}"`;
-
-const matchesId = (name: string) => {
-  return name.includes("Id") || name === "id";
-};
-const matcheslastName = (name: string) => {
-  return name.includes("lastName");
-};
-const matchesName = (name: string) => {
-  return name.toLowerCase().includes("name");
-};
-const matchesLine = (name: string) => {
-  return name.toLowerCase().includes("line");
-};
-const matchesPostcode = (name: string) => {
-  return name.toLowerCase().includes("postcode");
-};
-const matchesCity = (name: string) => {
-  return name.toLowerCase().includes("city");
-};
-const matchesCountry = (name: string) => {
-  const lowerCaseName: string = name.toLowerCase();
-  return lowerCaseName.includes("country") || lowerCaseName.includes("nation");
-};
-const matchesPhone = (name: string) => {
-  const lowerCaseName: string = name.toLowerCase();
-  return (
-    lowerCaseName.includes("phone") ||
-    lowerCaseName.includes("mobile") ||
-    lowerCaseName.includes("landline")
-  );
-};
-const matchesEmail = (name: string) => {
-  return name.toLowerCase().includes("email");
-};
-
-const matchesDate = (name: string) => {
-  const lowerCaseName: string = name.toLowerCase();
-  return (
-    lowerCaseName.includes("date") ||
-    lowerCaseName.includes("time") ||
-    name.includes("On") ||
-    name.includes("At")
-  );
-};
 
 const generatePrimitive: PrimitiveGenerator = ({ kind, name }) => {
   if (kind === ts.SyntaxKind.StringKeyword) {

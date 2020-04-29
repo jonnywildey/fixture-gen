@@ -5,62 +5,30 @@ import {
   LiteralGenerator,
   ArrayGenerator,
   EnumGenerator,
-  PrimitiveGenerator
+  PrimitiveGenerator,
 } from "../IValueGenerator";
 import ts from "typescript";
 import { printObject } from "./printObject";
 import { AddChanceToFunction, IChance } from "./chanceTypes";
+import {
+  matchesCity,
+  matchesCountry,
+  matchesDate,
+  matchesEmail,
+  matchesId,
+  matchesLine,
+  matchesName,
+  matchesPhone,
+  matchesPostcode,
+  matcheslastName,
+} from "./matchers";
 
 const wrapQuotes = (str: string) => `"${str}"`;
-
-const matchesId = (name: string) => {
-  return name.includes("Id") || name === "id";
-};
-const matcheslastName = (name: string) => {
-  return name.includes("lastName");
-};
-const matchesName = (name: string) => {
-  return name.toLowerCase().includes("name");
-};
-const matchesLine = (name: string) => {
-  return name.toLowerCase().includes("line");
-};
-const matchesPostcode = (name: string) => {
-  return name.toLowerCase().includes("postcode");
-};
-const matchesCity = (name: string) => {
-  return name.toLowerCase().includes("city");
-};
-const matchesCountry = (name: string) => {
-  const lowerCaseName: string = name.toLowerCase();
-  return lowerCaseName.includes("country") || lowerCaseName.includes("nation");
-};
-const matchesPhone = (name: string) => {
-  const lowerCaseName: string = name.toLowerCase();
-  return (
-    lowerCaseName.includes("phone") ||
-    lowerCaseName.includes("mobile") ||
-    lowerCaseName.includes("landline")
-  );
-};
-const matchesEmail = (name: string) => {
-  return name.toLowerCase().includes("email");
-};
-
-const matchesDate = (name: string) => {
-  const lowerCaseName: string = name.toLowerCase();
-  return (
-    lowerCaseName.includes("date") ||
-    lowerCaseName.includes("time") ||
-    name.includes("On") ||
-    name.includes("At")
-  );
-};
 
 const generatePrimitive: AddChanceToFunction<PrimitiveGenerator> = ({
   kind,
   name,
-  chance
+  chance,
 }) => {
   if (kind === ts.SyntaxKind.StringKeyword) {
     if (matchesId(name)) {
@@ -70,7 +38,7 @@ const generatePrimitive: AddChanceToFunction<PrimitiveGenerator> = ({
       return wrapQuotes(
         (chance.date({
           max: new Date(2524608000000), // Latest year is 2050
-          min: new Date(-631152000000) // Earliest year is 1950
+          min: new Date(-631152000000), // Earliest year is 1950
         }) as Date).toISOString()
       );
     }
@@ -122,7 +90,7 @@ const generatePrimitive: AddChanceToFunction<PrimitiveGenerator> = ({
 
 const generateFileString: FileStringGenerator = ({
   value: fixture,
-  interfaceName
+  interfaceName,
 }) => {
   const fixtureString = printObject(fixture);
   return `export const ${interfaceName}Fixture = ${fixtureString};`;
@@ -140,7 +108,7 @@ const generateLiteral: LiteralGenerator = ({ kind, text }) => {
 
 const generateArray: AddChanceToFunction<ArrayGenerator> = ({
   generateNode,
-  chance
+  chance,
 }) => {
   const randomArrayLength = chance.integer({ min: 1, max: 3 });
   const array = new Array(randomArrayLength).fill("");
@@ -150,7 +118,7 @@ const generateArray: AddChanceToFunction<ArrayGenerator> = ({
 const generateEnum: AddChanceToFunction<EnumGenerator> = ({
   enumMembers,
   enumName,
-  chance
+  chance,
 }) => {
   const enumKeys: any[] = [];
   // TODO - kind of faking the symbol
@@ -159,13 +127,13 @@ const generateEnum: AddChanceToFunction<EnumGenerator> = ({
 };
 
 const chanceReplacer = (chance: IChance): IValueGenerator => ({
-  generatePrimitive: params => generatePrimitive({ chance, ...params }),
-  generateFilename: interfaceName => `${interfaceName}.fixture.ts`,
-  generateArray: params => generateArray({ chance, ...params }),
-  generateUnion: values => chance.pickone(values),
-  generateEnum: params => generateEnum({ chance, ...params }),
+  generatePrimitive: (params) => generatePrimitive({ chance, ...params }),
+  generateFilename: (interfaceName) => `${interfaceName}.fixture.ts`,
+  generateArray: (params) => generateArray({ chance, ...params }),
+  generateUnion: (values) => chance.pickone(values),
+  generateEnum: (params) => generateEnum({ chance, ...params }),
   generateFileString,
-  generateLiteral
+  generateLiteral,
 });
 
 export const textValueGeneratorBuilder = (chance?: IChance) => {
