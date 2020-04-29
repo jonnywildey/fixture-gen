@@ -5,7 +5,7 @@ describe("getChanceFixture Tests", () => {
     const fixture = getChanceFixture({
       filename:
         "/Users/jonny/trussle/fixture-gen/src/testInterfaces/ITestInterface.ts",
-      interfaceLine: "ITestInterface",
+      interfaceName: "ITestInterface",
     });
     expect(fixture.fixture).toEqual({
       a: "chance.string()",
@@ -64,7 +64,7 @@ describe("getChanceFixture Tests", () => {
     const fixture = getChanceFixture({
       filename:
         "/Users/jonny/trussle/fixture-gen/src/testInterfaces/ITestInterface.ts",
-      interfaceLine: "IExtendTestInterface",
+      interfaceName: "IExtendTestInterface",
     });
     expect(fixture.fixture).toEqual({
       a: "chance.string()",

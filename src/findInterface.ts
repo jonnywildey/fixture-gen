@@ -5,11 +5,11 @@ import { InterfaceishNode } from "./interfaces";
 export const findInterface = ({
   sourceFile,
   filename,
-  interfaceLine
+  interfaceName,
 }: {
   sourceFile: ts.SourceFile;
   filename: string;
-  interfaceLine: string;
+  interfaceName: string;
 }) => {
   // filter for interface-like nodes
   const interfaces: InterfaceishNode[] = [];
@@ -22,12 +22,9 @@ export const findInterface = ({
     throw new Error(`No interfaces found in ${filename}`);
   }
   // find selected interface
-  const interfaceNameTokens = interfaceLine.split(" ");
-  const interfaceNode = interfaces.find((i) =>
-    interfaceNameTokens.includes(i.name.text)
-  );
+  const interfaceNode = interfaces.find((i) => i.name.text === interfaceName);
   if (!interfaceNode) {
-    throw new Error(`Could not find interface ${interfaceLine} in ${filename}`);
+    throw new Error(`Could not find interface ${interfaceName} in ${filename}`);
   }
   return interfaceNode;
 };

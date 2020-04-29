@@ -7,14 +7,14 @@ import { findInterface } from "./findInterface";
 
 export interface IGetTextValueFixtureParams {
   filename: string;
-  interfaceLine: string;
+  interfaceName: string;
   chance?: IChance;
 }
 
 /* Get export interface identifiers */
 export const getTextValueFixture = ({
   filename,
-  interfaceLine,
+  interfaceName,
   chance,
 }: IGetTextValueFixtureParams) => {
   const textValueGenerator = textValueGeneratorBuilder(chance);
@@ -26,7 +26,7 @@ export const getTextValueFixture = ({
   const sourceFile = program.getSourceFile(filename)!;
   const typeChecker = program.getTypeChecker();
 
-  const interfaceNode = findInterface({ filename, sourceFile, interfaceLine });
+  const interfaceNode = findInterface({ filename, sourceFile, interfaceName });
   const interfaceType = typeChecker.getTypeAtLocation(interfaceNode);
 
   const fixture = generateFixture({
@@ -34,12 +34,10 @@ export const getTextValueFixture = ({
     typeChecker,
     valueGenerator: textValueGenerator,
   });
-  const fixtureFilename = textValueGenerator.generateFilename(
-    interfaceNode.name.text
-  );
+  const fixtureFilename = textValueGenerator.generateFilename(interfaceName);
   const fixtureFile = textValueGenerator.generateFileString({
     value: fixture,
-    interfaceName: interfaceNode.name.text,
+    interfaceName,
   });
 
   return { fixtureFilename, fixtureFile, fixture };

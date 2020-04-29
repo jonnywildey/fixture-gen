@@ -8,7 +8,7 @@ describe("getTextValueFixture Tests", () => {
     const fixture = getTextValueFixture({
       filename:
         "/Users/jonny/trussle/fixture-gen/src/testInterfaces/ITestInterface.ts",
-      interfaceLine: "ITestInterface",
+      interfaceName: "ITestInterface",
       chance,
     });
     expect(fixture.fixture).toEqual({
@@ -70,7 +70,7 @@ describe("getTextValueFixture Tests", () => {
     const fixture = getTextValueFixture({
       filename:
         "/Users/jonny/trussle/fixture-gen/src/testInterfaces/ITestInterface.ts",
-      interfaceLine: "IExtendTestInterface",
+      interfaceName: "IExtendTestInterface",
       chance,
     });
     expect(fixture.fixture).toEqual({
@@ -129,6 +129,20 @@ describe("getTextValueFixture Tests", () => {
       s: '"COFFEE"',
       t: 5,
       z: '"ketbeun sim"',
+    });
+  });
+
+  it("Returns correct values for IExtendPartialTestInterface, including extended properties", () => {
+    const chance = Chance(6);
+
+    const fixture = getTextValueFixture({
+      filename:
+        "/Users/jonny/trussle/fixture-gen/src/testInterfaces/ITestInterface.ts",
+      interfaceName: "IExtendPartialTestInterface",
+      chance,
+    });
+    expect(fixture.fixture).toEqual({
+
     });
   });
 });

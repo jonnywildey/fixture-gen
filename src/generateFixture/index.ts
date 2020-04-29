@@ -19,7 +19,7 @@ export const generateFixture = ({
 
   properties.forEach((nodeProperty) => {
     const name = nodeProperty.name;
-    const node = nodeProperty.valueDeclaration;
+    const node = nodeProperty.valueDeclaration || nodeProperty.declarations[0];
     if (!ts.isPropertySignature(node)) {
       return;
     }

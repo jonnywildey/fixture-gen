@@ -6,13 +6,13 @@ import { findInterface } from "./findInterface";
 
 export interface IGetChanceFixtureParams {
   filename: string;
-  interfaceLine: string;
+  interfaceName: string;
 }
 
 /* Get export interface identifiers */
 export const getChanceFixture = ({
   filename,
-  interfaceLine,
+  interfaceName,
 }: IGetChanceFixtureParams) => {
   const chanceValueGenerator = chanceValueGeneratorBuilder();
 
@@ -24,9 +24,8 @@ export const getChanceFixture = ({
   const sourceFile = program.getSourceFile(filename)!;
   const typeChecker = program.getTypeChecker();
 
-  const interfaceNode = findInterface({ filename, sourceFile, interfaceLine });
+  const interfaceNode = findInterface({ filename, sourceFile, interfaceName });
   const interfaceType = typeChecker.getTypeAtLocation(interfaceNode);
-  const interfaceName = interfaceNode.name.text;
 
   // Get Fixture
   const fixture = generateFixture({
