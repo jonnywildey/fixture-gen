@@ -4,11 +4,12 @@ import {
   FileStringGenerator,
   LiteralGenerator,
   ArrayGenerator,
-} from "../interfaces";
+  EnumGenerator,
+  PrimitiveGenerator
+} from "../IValueGenerator";
 import ts from "typescript";
 import { printObject } from "./printObject";
-
-export type IChance = InstanceType<typeof Chance>;
+import { AddChanceToFunction, IChance } from "./chanceTypes";
 
 const wrapQuotes = (str: string) => `"${str}"`;
 
@@ -56,14 +57,10 @@ const matchesDate = (name: string) => {
   );
 };
 
-const generatePrimitive = ({
+const generatePrimitive: AddChanceToFunction<PrimitiveGenerator> = ({
   kind,
   name,
   chance
-}: {
-  kind: ts.SyntaxKind;
-  name: string;
-  chance: IChance;
 }) => {
   if (kind === ts.SyntaxKind.StringKeyword) {
     if (matchesId(name)) {
@@ -124,8 +121,8 @@ const generatePrimitive = ({
 };
 
 const generateFileString: FileStringGenerator = ({
-  fixture,
-  interfaceName,
+  value: fixture,
+  interfaceName
 }) => {
   const fixtureString = printObject(fixture);
   return `export const ${interfaceName}Fixture = ${fixtureString};`;
@@ -141,29 +138,34 @@ const generateLiteral: LiteralGenerator = ({ kind, text }) => {
   return text;
 };
 
-export type ChanceArrayGenerator = (params: {
-  generateNode: () => any;
-  name: string;
-  kind: ts.SyntaxKind;
-  chance: IChance;
-}) => any;
-
-const generateArray: ChanceArrayGenerator = ({
+const generateArray: AddChanceToFunction<ArrayGenerator> = ({
   generateNode,
-  chance,
+  chance
 }) => {
   const randomArrayLength = chance.integer({ min: 1, max: 3 });
   const array = new Array(randomArrayLength).fill("");
   return array.map(() => generateNode());
 };
 
+const generateEnum: AddChanceToFunction<EnumGenerator> = ({
+  enumMembers,
+  enumName,
+  chance
+}) => {
+  const enumKeys: any[] = [];
+  // TODO - kind of faking the symbol
+  enumMembers.forEach((_value, key) => enumKeys.push(`${enumName}.${key}`));
+  return chance.pickone(enumKeys);
+};
+
 const chanceReplacer = (chance: IChance): IValueGenerator => ({
-  generatePrimitive: (params) => generatePrimitive({ chance, ...params }),
-  selectFromArray:array => chance.pickone(array),
-  generateFilename:interfaceName => `${interfaceName}.fixture.ts`,
-  generateArray: (params) => generateArray({ chance, ...params}),
+  generatePrimitive: params => generatePrimitive({ chance, ...params }),
+  generateFilename: interfaceName => `${interfaceName}.fixture.ts`,
+  generateArray: params => generateArray({ chance, ...params }),
+  generateUnion: values => chance.pickone(values),
+  generateEnum: params => generateEnum({ chance, ...params }),
   generateFileString,
-  generateLiteral,
+  generateLiteral
 });
 
 export const textValueGeneratorBuilder = (chance?: IChance) => {

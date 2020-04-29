@@ -1,15 +1,11 @@
-import Chance from "chance";
 import { getChanceFixture } from "../getChanceGenerator";
 
 describe("getChanceFixture Tests", () => {
   it("Returns correct values for ITestInterface", () => {
-    const chance = Chance(6);
-
     const fixture = getChanceFixture({
       filename:
         "/Users/jonny/trussle/fixture-gen/src/testInterfaces/ITestInterface.ts",
       interfaceLine: "ITestInterface",
-      chance
     });
     expect(fixture.fixture).toEqual({
       a: "chance.string()",
@@ -21,42 +17,46 @@ describe("getChanceFixture Tests", () => {
       },
       g: ["chance.integer({ min: 0, max: 50 })"],
       h: ["chance.string()"],
-      i: "IColor.GREEN",
+      i: "chance.pickone(Object.keys(IColor))",
       j: {
-        color: "IColor.GREEN",
+        color: "chance.pickone(Object.keys(IColor))",
         height: "chance.integer({ min: 0, max: 50 })",
         width: "chance.integer({ min: 0, max: 50 })",
       },
       k: {
-        color: "IColor.RED",
+        color: "chance.pickone(Object.keys(IColor))",
         radius: "chance.integer({ min: 0, max: 50 })",
       },
       l: [
         {
-          color: "IColor.RED",
+          color: "chance.pickone(Object.keys(IColor))",
           height: "chance.integer({ min: 0, max: 50 })",
-          width: "chance.integer({ min: 0, max: 50 })"
-        }
+          width: "chance.integer({ min: 0, max: 50 })",
+        },
       ],
       m: [
         {
-          color: "IColor.GREEN",
-          radius: "chance.integer({ min: 0, max: 50 })"
-        }
+          color: "chance.pickone(Object.keys(IColor))",
+          radius: "chance.integer({ min: 0, max: 50 })",
+        },
       ],
       n: {
         box: {
-          color: "IColor.RED",
+          color: "chance.pickone(Object.keys(IColor))",
           height: "chance.integer({ min: 0, max: 50 })",
           width: "chance.integer({ min: 0, max: 50 })",
         },
       },
-      o: "chance.string()",
-      p: "chance.string()",
+      o: "chance.pickone(chance.string(), null)",
+      p: "chance.pickone(chance.string(), undefined)",
       q: null,
-      r: '"GREEN"',
-      s: '"HOT_WATER"',
-      t: '"BLUE"'
+      r: 'chance.pickone("GREEN", "BLUE", "INDIGO")',
+      s: 'chance.pickone("TEA", "COFFEE", "HOT_WATER")',
+      t: `chance.pickone(5, "BLUE", {
+  color: chance.pickone(Object.keys(IColor)),
+  height: chance.integer({ min: 0, max: 50 }),
+  width: chance.integer({ min: 0, max: 50 })
+})`,
     });
   });
 });

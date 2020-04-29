@@ -3,10 +3,8 @@ import ts from "typescript";
 import { InterfaceishNode } from "./interfaces";
 
 import { generateFixture } from "./generateFixture";
-import {
-  textValueGeneratorBuilder,
-  IChance,
-} from "./valueGenerators/textValueGenerator";
+import { textValueGeneratorBuilder } from "./valueGenerators/textValueGenerator";
+import { IChance } from "./valueGenerators/chanceTypes";
 
 export interface IGetTextValueFixtureParams {
   filename: string;
@@ -57,7 +55,7 @@ export const getTextValueFixture = ({
     interfaceNode.name.text
   );
   const fixtureFile = textValueGenerator.generateFileString({
-    fixture,
+    value: fixture,
     interfaceName: interfaceNode.name.text
   });
 

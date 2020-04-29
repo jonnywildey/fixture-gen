@@ -3,7 +3,6 @@
   "rulesDirectory": ["tslint-plugin-prettier"],
   "rules": {
     "prettier": true,
-    "arrow-parens": [true, "ban-single-arg-parens"],
     "jsx-no-lambda": false,
     "indent": [
       true,
@@ -12,8 +11,6 @@
     ],
     "max-line-length": [true, 180],
     "member-ordering": [false],
-    "object-literal-sort-keys": false,
-    "object-literal-key-quotes": ["as-needed"],
-    "trailing-comma": [true, { "multiline": "never", "singleline": "never" }]
+    "object-literal-sort-keys": false
   }
 }

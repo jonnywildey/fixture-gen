@@ -3,24 +3,19 @@ import ts from "typescript";
 import { InterfaceishNode } from "./interfaces";
 
 import { generateFixture } from "./generateFixture";
-import {
-  chanceValueGeneratorBuilder,
-  IChance,
-} from "./valueGenerators/chanceGenerator";
+import { chanceValueGeneratorBuilder } from "./valueGenerators/chanceGenerator";
 
 export interface IGetChanceFixtureParams {
   filename: string;
   interfaceLine: string;
-  chance?: IChance;
 }
 
 /* Get export interface identifiers */
 export const getChanceFixture = ({
   filename,
   interfaceLine,
-  chance,
 }: IGetChanceFixtureParams) => {
-  const chanceValueGenerator = chanceValueGeneratorBuilder(chance);
+  const chanceValueGenerator = chanceValueGeneratorBuilder();
 
   // TODO - surely we can use the actual tsserver program?
   const program = ts.createProgram({
@@ -57,7 +52,7 @@ export const getChanceFixture = ({
     interfaceNode.name.text
   );
   const fixtureFile = chanceValueGenerator.generateFileString({
-    fixture,
+    value: fixture,
     interfaceName: interfaceNode.name.text,
   });
 

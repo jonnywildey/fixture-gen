@@ -1,4 +1,5 @@
-import { InterfacePropertyNode, IValueGenerator } from "../interfaces";
+import { InterfacePropertyNode } from "../interfaces";
+import { IValueGenerator } from "../IValueGenerator";
 import ts from "typescript";
 
 export type IFixtureObject = any;
@@ -60,7 +61,6 @@ const generateNodeValue = ({
     }
 
     // Check for type[] array definitions
-    // TODO - work out how to combine with other array
     if (kind === ts.SyntaxKind.ArrayType) {
       const elementKind = (node.type as any).elementType.kind;
       const elementType = (node.type as any).elementType;
@@ -92,7 +92,7 @@ const generateNodeValue = ({
           valueGenerator,
         })
       );
-      return valueGenerator.selectFromArray(allTypes);
+      return valueGenerator.generateUnion(allTypes);
     }
 
     // Check for literal
@@ -128,7 +128,7 @@ const generateNodeValue = ({
           name,
           kind: elementKind,
           typeChecker,
-        })
+        });
 
         return valueGenerator.generateArray({
           generateNode,
@@ -144,12 +144,11 @@ const generateNodeValue = ({
       ) {
         const enumMembers = type.symbol.exports!;
         const enumName = type.symbol.name;
-        const enumKeys: any[] = [];
-        // TODO - kind of faking the symbol
-        enumMembers.forEach((_value, key) =>
-          enumKeys.push(`${enumName}.${key}`)
-        );
-        return valueGenerator.selectFromArray(enumKeys);
+
+        return valueGenerator.generateEnum({
+          enumName,
+          enumMembers
+        });
       }
       // Check for other interfaces / types
       if (
@@ -174,16 +173,18 @@ const generateNodeValue = ({
         typeAliasDeclaration &&
         typeAliasDeclaration.kind === ts.SyntaxKind.TypeAliasDeclaration
       ) {
+
         const types: any[] = (type.aliasSymbol!.declarations[0] as any).type
           .types;
-        const selectedType = valueGenerator.selectFromArray(types);
-        return generateNodeValue({
-          kind: selectedType.kind,
+        const values = types.map( t => generateNodeValue({
+          kind: t.kind,
           name,
-          node: selectedType,
+          node: t,
           typeChecker,
-          valueGenerator,
-        });
+          valueGenerator
+        }));
+
+        return valueGenerator.generateUnion(values);
       }
     }
 
