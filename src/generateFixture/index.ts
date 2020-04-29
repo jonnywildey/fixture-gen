@@ -1,19 +1,19 @@
 import { InterfacePropertyNode, IValueGenerator } from "../interfaces";
-import ts, { LiteralLikeNode } from "typescript";
+import ts from "typescript";
 
 export type IFixtureObject = any;
 
 export const generateFixture = ({
   interfaceNode,
   valueGenerator,
-  typeChecker,
+  typeChecker
 }: {
   interfaceNode: InterfacePropertyNode;
   valueGenerator: IValueGenerator;
   typeChecker: ts.TypeChecker;
 }): IFixtureObject => {
   const fixtureObject: IFixtureObject = {};
-  ts.forEachChild(interfaceNode, (node) => {
+  ts.forEachChild(interfaceNode,node => {
     if (!ts.isPropertySignature(node)) {
       return;
     }
@@ -25,7 +25,7 @@ export const generateFixture = ({
       kind,
       node,
       typeChecker,
-      valueGenerator,
+      valueGenerator
     });
   });
   return fixtureObject;
@@ -36,7 +36,7 @@ const generateNodeValue = ({
   name,
   kind,
   typeChecker,
-  valueGenerator
+  valueGenerator,
 }: {
   node: ts.PropertySignature;
   name: string;
@@ -55,34 +55,26 @@ const generateNodeValue = ({
       return generateFixture({
         interfaceNode: (node as any).type,
         valueGenerator,
-        typeChecker
+        typeChecker,
       });
     }
 
-    // Check for string[] array definitions
+    // Check for type[] array definitions
     // TODO - work out how to combine with other array
     if (kind === ts.SyntaxKind.ArrayType) {
-      const randomArrayLength = valueGenerator.generateArrayLength();
       const elementKind = (node.type as any).elementType.kind;
       const elementType = (node.type as any).elementType;
-      const elementNode = typeChecker.getTypeFromTypeNode(elementType);
+      // Create Array
+      const randomArrayLength = valueGenerator.generateArrayLength();
       const array = new Array(randomArrayLength).fill("");
-      // Basic type, can skip recursion
-      if ((elementNode as any).intrinsicName) {
-        return array.map(() =>
-          valueGenerator.generatePrimitive({
-            name,
-            kind: elementKind
-          })
-        );
-      }
+
       return array.map(() =>
         generateNodeValue({
           valueGenerator,
           node: elementType,
           kind: elementKind,
           name,
-          typeChecker
+          typeChecker,
         })
       );
     }
@@ -90,13 +82,13 @@ const generateNodeValue = ({
     // Check for Union Types
     if (kind === ts.SyntaxKind.UnionType) {
       const unionTypes: any[] = (node as any).type.types;
-      const allTypes = unionTypes.map(unionType =>
+      const allTypes = unionTypes.map((unionType) =>
         generateNodeValue({
           kind: unionType.kind,
           name,
           node: unionType,
           typeChecker,
-          valueGenerator
+          valueGenerator,
         })
       );
       return valueGenerator.selectFromArray(allTypes);
@@ -106,7 +98,7 @@ const generateNodeValue = ({
     if (kind === ts.SyntaxKind.LiteralType) {
       return valueGenerator.generateLiteral({
         kind: (node as any).literal.kind,
-        text: (node as any).literal.text
+        text: (node as any).literal.text,
       });
     }
 
@@ -120,26 +112,27 @@ const generateNodeValue = ({
 
       // Check for Array<string>
       if (nodeType && nodeType.typeName && nodeType.typeName.text === "Array") {
-        const randomArrayLength = valueGenerator.generateArrayLength();
         const elementType = typeChecker.getTypeAtLocation(
           nodeType.typeArguments[0]
         );
         const elementKind = nodeType.typeArguments[0].kind;
+        // node is either aliased (non primitive) or in typeArguments (primitive)
+        const elementNode = elementType?.aliasSymbol?.declarations[0]
+          ? elementType.aliasSymbol.declarations[0]
+          : nodeType;
+        //
+        const randomArrayLength = valueGenerator.generateArrayLength();
         const array = new Array(randomArrayLength).fill("");
-        // Basic type, can skip recursion
-        if ((elementType as any).intrinsicName) {
-          return array.map(() =>
-            valueGenerator.generatePrimitive({ name, kind: elementKind })
-          );
-        }
-        const elementNode = elementType.aliasSymbol!.declarations[0];
+
+
+
         return array.map(() =>
           generateNodeValue({
             valueGenerator,
-            node: elementNode as any,
+            node: elementNode,
             name,
             kind: elementKind,
-            typeChecker
+            typeChecker,
           })
         );
       }
@@ -168,7 +161,7 @@ const generateNodeValue = ({
         return generateFixture({
           interfaceNode,
           typeChecker,
-          valueGenerator
+          valueGenerator,
         });
       }
 
@@ -181,15 +174,16 @@ const generateNodeValue = ({
         typeAliasDeclaration &&
         typeAliasDeclaration.kind === ts.SyntaxKind.TypeAliasDeclaration
       ) {
-        const types: any[] = (type.aliasSymbol!.declarations[0] as any).type.types;
+        const types: any[] = (type.aliasSymbol!.declarations[0] as any).type
+          .types;
         const selectedType = valueGenerator.selectFromArray(types);
         return generateNodeValue({
           kind: selectedType.kind,
           name,
           node: selectedType,
           typeChecker,
-          valueGenerator
-        })
+          valueGenerator,
+        });
       }
     }
 
