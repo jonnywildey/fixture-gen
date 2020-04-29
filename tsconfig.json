@@ -4,11 +4,17 @@
     "strict": true, /* Enable all strict type-checking options. */
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "target": "es5",
+    "outDir": "out",
     "types": [
-      "node"
+      "node",
+      "jest"
     ]
   },
   "include": [
     "src/**/*"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts"
   ]
 }

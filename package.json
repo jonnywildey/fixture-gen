@@ -1,12 +1,28 @@
 {
-  "name": "ts",
+  "name": "ts-fixture-gen",
+  "displayName": "TS Fixture Gen",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "publisher": "jonnywildey",
+  "engines": {
+    "vscode": "^1.41.1"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node src/index.ts",
-    "lint": "tslint --project ."
+    "lint": "tslint --project .",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "vsix": "vsce package"
   },
   "author": "",
   "license": "ISC",
@@ -14,14 +30,23 @@
     "chance": "1.1.4",
     "fs": "0.0.1-security",
     "prettier": "2.0.5",
-    "typescript": "3.8.3"
+    "typescript": "3.8.3",
+    "glob": "7.1.6",
+    "typescript-parser": "2.6.1"
   },
   "devDependencies": {
     "@types/chance": "1.0.10",
+    "@types/glob": "7.1.1",
+    "@types/jest": "25.2.1",
+    "@types/mocha": "7.0.2",
     "@types/node": "13.13.2",
+    "jest": "25.4.0",
+    "ts-jest": "25.4.0",
     "ts-node": "8.9.0",
     "tslint": "6.1.1",
     "tslint-config-prettier": "1.18.0",
-    "tslint-plugin-prettier": "2.3.0"
+    "tslint-plugin-prettier": "2.3.0",
+    "typescript": "3.8.3",
+    "vscode": "1.1.37"
   }
 }

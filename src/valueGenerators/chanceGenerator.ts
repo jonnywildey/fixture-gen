@@ -1,11 +1,15 @@
 import Chance from "chance";
-import { IValueGenerator, FileStringGenerator, LiteralGenerator } from "../interfaces";
+import {
+  IValueGenerator,
+  FileStringGenerator,
+  LiteralGenerator,
+} from "../interfaces";
 import ts from "typescript";
 import { printObject } from "./printObject";
 
 export type IChance = InstanceType<typeof Chance>;
 
-const wrapQuotes = (str: string) => `"${str}"`
+const wrapQuotes = (str: string) => `"${str}"`;
 
 const matchesId = (name: string) => {
   return name.includes("Id") || name === "id";
@@ -54,7 +58,7 @@ const matchesDate = (name: string) => {
 const generatePrimitive = ({
   kind,
   name,
-  chance,
+  chance
 }: {
   kind: ts.SyntaxKind;
   name: string;
@@ -62,46 +66,43 @@ const generatePrimitive = ({
 }) => {
   if (kind === ts.SyntaxKind.StringKeyword) {
     if (matchesId(name)) {
-      return wrapQuotes(chance.guid());
+      return `chance.guid()`;
     }
     if (matchesDate(name)) {
-      return wrapQuotes((chance.date({
-        max: new Date(2524608000000), // Latest year is 2050
-        min: new Date(-631152000000), // Earliest year is 1950
-      }) as Date).toISOString());
+      return `chance.date({ max: new Date('2090-01-01'), min: new Date('1950-01-01')}) as Date).toISOString()`;
     }
     if (matcheslastName(name)) {
-      return wrapQuotes(chance.first());
+      return `chance.first()`;
     }
     if (matchesName(name)) {
-      return wrapQuotes(chance.first());
+      return `chance.first()`;
     }
     if (matchesLine(name)) {
-      return wrapQuotes(chance.street());
+      return `chance.street()`;
     }
     if (matchesPostcode(name)) {
-      return wrapQuotes(chance.postcode());
+      return `chance.postcode()`;
     }
     if (matchesCity(name)) {
-      return wrapQuotes(chance.city());
+      return `chance.city()`;
     }
     if (matchesCountry(name)) {
-      return wrapQuotes(chance.country());
+      return `chance.country()`;
     }
     if (matchesPhone(name)) {
-      return wrapQuotes(chance.phone());
+      return `chance.phone()`;
     }
     if (matchesEmail(name)) {
-      return wrapQuotes(chance.email());
+      return `chance.email()`;
     }
-    return wrapQuotes(`${chance.word()} ${chance.word()}`);
+    return "`${chance.word()} ${chance.word()}`";
   }
   if (kind === ts.SyntaxKind.NumberKeyword) {
-    return chance.integer({ min: 0, max: 50 });
+    return `chance.integer({ min: 0, max: 50 })`;
   }
 
   if (kind === ts.SyntaxKind.BooleanKeyword) {
-    return chance.bool();
+    return `chance.bool()`;
   }
 
   if (kind === ts.SyntaxKind.NullKeyword) {
@@ -113,16 +114,19 @@ const generatePrimitive = ({
   }
 
   console.log(`Could not match kind ${kind}`);
-  return  wrapQuotes(chance.guid());
+  return `chance.guid()`;
 };
 
 const generateFileString: FileStringGenerator = ({
   fixture,
-  interfaceName
+  interfaceName,
 }) => {
   const fixtureString = printObject(fixture);
-  return `export const ${interfaceName}Fixture = ${fixtureString};`
-}
+  const pretext = `import Chance from "chance";
+import { ${interfaceName} } from './${interfaceName}'
+export const ${interfaceName}FixtureGenerator = (overrides: Partial<${interfaceName}>, chance?: InstanceType<typeof Chance>) => `;
+  return `${pretext}(${fixtureString});`;
+};
 
 const generateLiteral: LiteralGenerator = ({ kind, text }) => {
   if (kind === ts.SyntaxKind.StringLiteral) {
@@ -132,17 +136,17 @@ const generateLiteral: LiteralGenerator = ({ kind, text }) => {
     return Number(text);
   }
   return text;
-}
+};
 
 const chanceReplacer = (chance: IChance): IValueGenerator => ({
-  generatePrimitive: params => generatePrimitive({ chance, ...params }),
+  generatePrimitive: (params) => generatePrimitive({ chance, ...params }),
   generateArrayLength: () => chance.integer({ min: 1, max: 3 }),
-  selectFromArray: (array) => chance.pickone(array),
-  generateFilename: (interfaceName) => `${interfaceName}.fixture.ts`,
+  selectFromArray:array => chance.pickone(array),
+  generateFilename:interfaceName => `${interfaceName}.fixture.ts`,
   generateFileString,
-  generateLiteral
+  generateLiteral,
 });
 
-export const textValueGeneratorBuilder = (chance?: IChance) => {
+export const chanceValueGeneratorBuilder = (chance?: IChance) => {
   return chanceReplacer(chance ? chance : new Chance());
 };

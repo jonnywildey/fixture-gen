@@ -2,6 +2,8 @@ import ts from "typescript";
 
 import { InterfaceishNode } from "./interfaces";
 
+import { generateFixture } from "./generateFixture";
+
 /* Get export interface identifiers */
 export const getInterfaceIdentifiers = (filename: string) => {
   const program = ts.createProgram({
