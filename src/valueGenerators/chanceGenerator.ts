@@ -84,7 +84,6 @@ const generateFileString: FileStringGenerator = ({
 }) => {
   const fixtureString = printObject(fixture);
   const pretext = `import Chance from "chance";
-import { ${interfaceName} } from './${interfaceName}'
 export const ${interfaceName}FixtureGenerator = (overrides: Partial<${interfaceName}>, chance?: InstanceType<typeof Chance>) => `;
   return `${pretext}(${fixtureString});`;
 };

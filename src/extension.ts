@@ -51,7 +51,6 @@ export function activate(context: vscode.ExtensionContext) {
       CHANCE_VALUE_COMMAND,
       (document: vscode.TextDocument, line: string) => {
         const edit = new vscode.WorkspaceEdit();
-        debugger;
         // Get Fixture
         const { fixtureFile, fixtureFilename } = getChanceFixture({
           filename: document.uri.path,
@@ -87,17 +86,16 @@ export class TsFixtureGenerator implements vscode.CodeActionProvider {
     if (line.includes("interface") || line.includes("type")) {
 
       const chanceAction = new vscode.CodeAction(
-        `Generate Chance Fixture Generator`,
+        `Generate Chance Fixture`,
         vscode.CodeActionKind.RefactorExtract
       );
       chanceAction.command = {
         arguments: [document, line],
         command: CHANCE_VALUE_COMMAND,
-        title: `Generate Chance Fixture Generator`,
+        title: `Generate Chance Fixture`,
         tooltip:
           "This will create a fixture generator of the interface using chance.js",
       };
-
 
       const fixtureAction = new vscode.CodeAction(
         `Generate Fixture`,
