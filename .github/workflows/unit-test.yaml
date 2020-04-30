@@ -30,10 +30,14 @@ jobs:
       run: npm test
 
   coverage:
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
     - uses: codecov/codecov-action@v1
       with:
         file: ./coverage/clover.xml # optional
         name: ts-fixture-generator # optional
         fail_ci_if_error: true # optional (default = false)
+    # Runs a single command using the runners shell
+    - name: unit-test
+      run: npm test
