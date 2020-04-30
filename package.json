@@ -27,7 +27,7 @@
     "dev": "ts-node src/index.ts",
     "lint": "tslint --project .",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "test": "jest",
     "vscode:prepublish": "webpack --mode production",
     "webpack": "rimraf dist && webpack --mode development",
     "webpack-dev": "webpack --mode development --watch",
