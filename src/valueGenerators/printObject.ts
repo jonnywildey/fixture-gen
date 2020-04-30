@@ -1,4 +1,4 @@
-import util = require("util");
+import util from "util";
 
 export const printObject = (obj: any) =>
   util
