@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "strict": true, /* Enable all strict type-checking options. */
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "target": "es5",
+    "module": "es6",
+    "outDir": "dist",
+    "types": [
+      "node",
+      "jest"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
+}
