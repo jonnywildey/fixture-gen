@@ -1,6 +1,7 @@
 {
   "name": "ts-fixture-gen",
   "displayName": "TS Fixture Gen",
+  "repository": "https://github.com/jonnywildey/fixture-gen",
   "version": "1.0.0",
   "description": "",
   "publisher": "jonnywildey",
