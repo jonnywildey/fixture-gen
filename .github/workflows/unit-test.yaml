@@ -31,6 +31,7 @@ jobs:
       run: npm run coverage
     - uses: codecov/codecov-action@v1
       with:
+        token: 3b291d74-faaf-441e-b261-a5ac25b39149
         file: ./coverage/clover.xml # optional
         name: ts-fixture-generator # optional
         fail_ci_if_error: true # optional (default = false)
