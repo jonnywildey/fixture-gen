@@ -125,4 +125,24 @@ describe("getChanceFixture Tests", () => {
       z: "chance.string()",
     });
   });
+
+  it("Returns correct values for IStringProperties", () => {
+    const fixture = getChanceFixture({
+      filename: testInterfaceAbsolutePath,
+      interfaceName: "IStringProperties",
+    });
+    expect(fixture.fixture).toEqual({
+      city: "chance.city()",
+      country: "chance.country()",
+      createdOn: "chanceDate(chance)",
+      email: "chance.email()",
+      firstName: "chance.first()",
+      id: "chance.guid()",
+      lastName: "chance.first()",
+      line1: "chance.street()",
+      line2: "chance.street()",
+      phone: "chance.phone()",
+      postcode: "chance.postcode()",
+    });
+  });
 });

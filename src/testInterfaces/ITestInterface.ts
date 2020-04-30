@@ -66,3 +66,17 @@ export interface IExtendTestInterface extends ITestInterface {
 export interface IExtendPartialTestInterface extends Partial<ITestInterface> {
   z: string;
 }
+
+export interface IStringProperties {
+  id: string;
+  createdOn: string;
+  firstName: string;
+  lastName: string;
+  line1: string;
+  line2: string;
+  city: string;
+  postcode: string;
+  country: string;
+  phone: string;
+  email: string;
+}

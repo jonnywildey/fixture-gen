@@ -75,8 +75,7 @@ describe("getTextValueFixture Tests", () => {
     const chance = Chance(6);
 
     const fixture = getTextValueFixture({
-      filename:
-        "/Users/jonny/trussle/fixture-gen/src/testInterfaces/ITestInterface.ts",
+      filename: testInterfaceAbsolutePath,
       interfaceName: "IExtendTestInterface",
       chance,
     });
@@ -203,6 +202,29 @@ describe("getTextValueFixture Tests", () => {
       s: '"COFFEE"',
       t: 5,
       z: '"ketbeun sim"',
+    });
+  });
+
+  it("Returns correct values for IStringProperties", () => {
+    const chance = Chance(6);
+
+    const fixture = getTextValueFixture({
+      filename: testInterfaceAbsolutePath,
+      interfaceName: "IStringProperties",
+      chance,
+    });
+    expect(fixture.fixture).toEqual({
+      city: `"Ughewiz"`,
+      country: `"RE"`,
+      createdOn: `"2041-06-02T23:40:58.492Z"`,
+      email: `"zo@nirliw.gs"`,
+      firstName: `"Leona"`,
+      id: `"90fd8baf-b04b-5341-8f24-827613d4c560"`,
+      lastName: `"Oscar"`,
+      line1: `"Ativo Drive"`,
+      line2: `"Lopnin Court"`,
+      phone: `"(779) 938-3282"`,
+      postcode: `"M2 6TP"`,
     });
   });
 });
