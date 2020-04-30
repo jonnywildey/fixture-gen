@@ -19,11 +19,7 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-    - uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage/clover.xml # optional
-        name: ts-fixture-generator # optional
-        fail_ci_if_error: true # optional (default = false)
+
 
     # Runs a single command using the runners shell
     - name: install
@@ -33,3 +29,8 @@ jobs:
     # Runs a single command using the runners shell
     - name: unit-test
       run: npm run coverage
+    - uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage/clover.xml # optional
+        name: ts-fixture-generator # optional
+        fail_ci_if_error: true # optional (default = false)
