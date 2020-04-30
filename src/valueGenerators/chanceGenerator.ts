@@ -30,7 +30,7 @@ const generatePrimitive: PrimitiveGenerator = ({ kind, name }) => {
       return `chance.guid()`;
     }
     if (matchesDate(name)) {
-      return `chance.date({ max: new Date('2090-01-01'), min: new Date('1950-01-01')}) as Date).toISOString()`;
+      return `chanceDate(chance)`;
     }
     if (matcheslastName(name)) {
       return `chance.first()`;
@@ -84,6 +84,9 @@ const generateFileString: FileStringGenerator = ({
 }) => {
   const fixtureString = printObject(fixture);
   const pretext = `import Chance from "chance";
+
+const chanceDate = (chance) => (chance.date({ max: new Date('2090-01-01'), min: new Date('1950-01-01')}) as Date).toISOString();
+
 export const ${interfaceName}FixtureGenerator = (overrides: Partial<${interfaceName}>, chance?: InstanceType<typeof Chance>) => `;
   return `${pretext}(${fixtureString});`;
 };
@@ -104,7 +107,7 @@ const generateArray: ArrayGenerator = ({ generateNode }) => {
 };
 
 const generateUnion: UnionGenerator = (values) => {
-  return `chance.pickone(${values.map((v) => printObject(v)).join(", ")})`;
+  return `chance.pickone([${values.map((v) => printObject(v)).join(", ")}])`;
 };
 
 const generateEnum: EnumGenerator = ({ enumName }) => {

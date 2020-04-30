@@ -81,40 +81,47 @@ export class TsFixtureGenerator implements vscode.CodeActionProvider {
     document: vscode.TextDocument,
     range: vscode.Range
   ): vscode.CodeAction[] | undefined {
+    if (!range.isSingleLine) {
+      return [];
+    }
     const line = document.lineAt(range.start.line).text;
 
-    if (line.includes("interface") || line.includes("type")) {
-      const interfaceName = line
-        .substring(range.start.character, range.end.character)
-        .trim();
-
-      const chanceAction = new vscode.CodeAction(
-        `Generate Chance Fixture`,
-        vscode.CodeActionKind.RefactorExtract
-      );
-      chanceAction.command = {
-        arguments: [document, interfaceName],
-        command: CHANCE_VALUE_COMMAND,
-        title: `Generate Chance Fixture`,
-        tooltip:
-          "This will create a fixture generator of the interface using chance.js",
-      };
-
-      const fixtureAction = new vscode.CodeAction(
-        `Generate Fixture`,
-        vscode.CodeActionKind.RefactorExtract
-      );
-      fixtureAction.command = {
-        arguments: [document, interfaceName],
-        command: TEXT_VALUE_COMMAND,
-        title: `Generate Fixture`,
-        tooltip:
-          "This will create a fixture of the interface or type with random values",
-      };
-
-      return [fixtureAction, chanceAction];
+    if (!line.includes("interface") && !line.includes("type")) {
+      return [];
     }
 
-    return [];
+    const wordRange = document.getWordRangeAtPosition(range.start);
+    if (!wordRange) {
+      return [];
+    }
+    const interfaceName = line
+      .substring(wordRange.start.character, wordRange.end.character)
+      .trim();
+
+    const chanceAction = new vscode.CodeAction(
+      `Generate Chance Fixture`,
+      vscode.CodeActionKind.RefactorExtract
+    );
+    chanceAction.command = {
+      arguments: [document, interfaceName],
+      command: CHANCE_VALUE_COMMAND,
+      title: `Generate Chance Fixture`,
+      tooltip:
+        "This will create a fixture generator of the interface using chance.js",
+    };
+
+    const fixtureAction = new vscode.CodeAction(
+      `Generate Fixture`,
+      vscode.CodeActionKind.RefactorExtract
+    );
+    fixtureAction.command = {
+      arguments: [document, interfaceName],
+      command: TEXT_VALUE_COMMAND,
+      title: `Generate Fixture`,
+      tooltip:
+        "This will create a fixture of the interface or type with random values",
+    };
+
+    return [fixtureAction, chanceAction];
   }
 }
