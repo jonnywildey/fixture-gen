@@ -12,7 +12,7 @@ const CHANCE_VALUE_COMMAND = "ts-fixture-generator.generate-chance-fixture";
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
-      "typescript",
+      ["typescript", "typescriptreact"],
       new TsFixtureGenerator(),
       {
         providedCodeActionKinds: TsFixtureGenerator.providedCodeActionKinds,
