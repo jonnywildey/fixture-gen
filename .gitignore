@@ -52,6 +52,7 @@ public/images/.DS_Store
 yarn.lock
 config/replica.json
 .scannerwork/
+coverage
 
 # TypeScript compilation
 build

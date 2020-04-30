@@ -20,6 +20,7 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
+
     # Runs a single command using the runners shell
     - name: install
       run: npm install
@@ -27,4 +28,10 @@ jobs:
       run: npm run test-compile
     # Runs a single command using the runners shell
     - name: unit-test
-      run: npm test
+      run: npm run coverage
+    - uses: codecov/codecov-action@v1
+      with:
+        token: 3b291d74-faaf-441e-b261-a5ac25b39149
+        file: ./coverage/clover.xml # optional
+        name: ts-fixture-generator # optional
+        fail_ci_if_error: true # optional (default = false)
