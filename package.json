@@ -1,7 +1,10 @@
 {
   "name": "ts-fixture-gen",
   "displayName": "TS Fixture Gen",
-  "repository": "https://github.com/jonnywildey/fixture-gen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonnywildey/fixture-gen"
+  },
   "version": "1.0.0",
   "description": "",
   "publisher": "jonnywildey",
@@ -14,6 +17,11 @@
   "activationEvents": [
     "onLanguage:typescript"
   ],
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#F05E23",
+    "theme": "dark"
+  },
   "main": "./dist/extension",
   "scripts": {
     "dev": "ts-node src/index.ts",
