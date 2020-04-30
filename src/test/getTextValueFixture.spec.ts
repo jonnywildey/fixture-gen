@@ -1,13 +1,20 @@
 import Chance from "chance";
 import { getTextValueFixture } from "../getTextValueFixture";
+import path from "path";
 
 describe("getTextValueFixture Tests", () => {
+  const testInterfaceAbsolutePath = path.join(
+    __dirname,
+    "../",
+    "testInterfaces",
+    "ITestInterface.ts"
+  );
+
   it("Returns correct values for ITestInterface", () => {
     const chance = Chance(6);
 
     const fixture = getTextValueFixture({
-      filename:
-        "/Users/jonny/trussle/fixture-gen/src/testInterfaces/ITestInterface.ts",
+      filename: testInterfaceAbsolutePath,
       interfaceName: "ITestInterface",
       chance,
     });
@@ -136,13 +143,66 @@ describe("getTextValueFixture Tests", () => {
     const chance = Chance(6);
 
     const fixture = getTextValueFixture({
-      filename:
-        "/Users/jonny/trussle/fixture-gen/src/testInterfaces/ITestInterface.ts",
+      filename: testInterfaceAbsolutePath,
       interfaceName: "IExtendPartialTestInterface",
       chance,
     });
     expect(fixture.fixture).toEqual({
-
+      a: '"tuzo hidwuw"',
+      b: 41,
+      c: true,
+      d: {
+        e: 21,
+        f: '"ativoaj wimdazme"',
+      },
+      g: [42],
+      h: ['"retzir ovehekzes"', '"wunu wecmas"', '"pemfikos me"'],
+      i: "IColor.ORANGE",
+      j: {
+        color: "IColor.GREEN",
+        height: 28,
+        width: 31,
+      },
+      k: {
+        color: "IColor.ORANGE",
+        radius: 45,
+      },
+      l: [
+        {
+          color: "IColor.GREEN",
+          height: 34,
+          width: 42,
+        },
+        {
+          color: "IColor.GREEN",
+          height: 9,
+          width: 24,
+        },
+      ],
+      m: [
+        {
+          color: "IColor.ORANGE",
+          radius: 24,
+        },
+        {
+          color: "IColor.RED",
+          radius: 20,
+        },
+      ],
+      n: {
+        box: {
+          color: "IColor.GREEN",
+          height: 37,
+          width: 50,
+        },
+      },
+      o: '"vidwema bik"',
+      p: '"rardep ufa"',
+      q: null,
+      r: '"BLUE"',
+      s: '"COFFEE"',
+      t: 5,
+      z: '"ketbeun sim"',
     });
   });
 });
