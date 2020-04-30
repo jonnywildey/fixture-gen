@@ -1,75 +1,36 @@
-import Chance from "chance";
 import {
   IValueGenerator,
   FileStringGenerator,
   LiteralGenerator,
-} from "../interfaces";
+  ArrayGenerator,
+  PrimitiveGenerator,
+  UnionGenerator,
+  EnumGenerator
+} from "../IValueGenerator";
 import ts from "typescript";
 import { printObject } from "./printObject";
-
-export type IChance = InstanceType<typeof Chance>;
+import {
+  matchesCity,
+  matchesCountry,
+  matchesDate,
+  matchesEmail,
+  matchesId,
+  matchesLine,
+  matchesName,
+  matchesPhone,
+  matchesPostcode,
+  matcheslastName
+} from "./matchers";
 
 const wrapQuotes = (str: string) => `"${str}"`;
 
-const matchesId = (name: string) => {
-  return name.includes("Id") || name === "id";
-};
-const matcheslastName = (name: string) => {
-  return name.includes("lastName");
-};
-const matchesName = (name: string) => {
-  return name.toLowerCase().includes("name");
-};
-const matchesLine = (name: string) => {
-  return name.toLowerCase().includes("line");
-};
-const matchesPostcode = (name: string) => {
-  return name.toLowerCase().includes("postcode");
-};
-const matchesCity = (name: string) => {
-  return name.toLowerCase().includes("city");
-};
-const matchesCountry = (name: string) => {
-  const lowerCaseName: string = name.toLowerCase();
-  return lowerCaseName.includes("country") || lowerCaseName.includes("nation");
-};
-const matchesPhone = (name: string) => {
-  const lowerCaseName: string = name.toLowerCase();
-  return (
-    lowerCaseName.includes("phone") ||
-    lowerCaseName.includes("mobile") ||
-    lowerCaseName.includes("landline")
-  );
-};
-const matchesEmail = (name: string) => {
-  return name.toLowerCase().includes("email");
-};
-
-const matchesDate = (name: string) => {
-  const lowerCaseName: string = name.toLowerCase();
-  return (
-    lowerCaseName.includes("date") ||
-    lowerCaseName.includes("time") ||
-    name.includes("On") ||
-    name.includes("At")
-  );
-};
-
-const generatePrimitive = ({
-  kind,
-  name,
-  chance
-}: {
-  kind: ts.SyntaxKind;
-  name: string;
-  chance: IChance;
-}) => {
+const generatePrimitive: PrimitiveGenerator = ({ kind, name }) => {
   if (kind === ts.SyntaxKind.StringKeyword) {
     if (matchesId(name)) {
       return `chance.guid()`;
     }
     if (matchesDate(name)) {
-      return `chance.date({ max: new Date('2090-01-01'), min: new Date('1950-01-01')}) as Date).toISOString()`;
+      return `chanceDate(chance)`;
     }
     if (matcheslastName(name)) {
       return `chance.first()`;
@@ -95,7 +56,7 @@ const generatePrimitive = ({
     if (matchesEmail(name)) {
       return `chance.email()`;
     }
-    return "`${chance.word()} ${chance.word()}`";
+    return `chance.string()`;
   }
   if (kind === ts.SyntaxKind.NumberKeyword) {
     return `chance.integer({ min: 0, max: 50 })`;
@@ -118,12 +79,14 @@ const generatePrimitive = ({
 };
 
 const generateFileString: FileStringGenerator = ({
-  fixture,
-  interfaceName,
+  value: fixture,
+  interfaceName
 }) => {
   const fixtureString = printObject(fixture);
   const pretext = `import Chance from "chance";
-import { ${interfaceName} } from './${interfaceName}'
+
+const chanceDate = (chance) => (chance.date({ max: new Date('2090-01-01'), min: new Date('1950-01-01')}) as Date).toISOString();
+
 export const ${interfaceName}FixtureGenerator = (overrides: Partial<${interfaceName}>, chance?: InstanceType<typeof Chance>) => `;
   return `${pretext}(${fixtureString});`;
 };
@@ -138,15 +101,27 @@ const generateLiteral: LiteralGenerator = ({ kind, text }) => {
   return text;
 };
 
-const chanceReplacer = (chance: IChance): IValueGenerator => ({
-  generatePrimitive: (params) => generatePrimitive({ chance, ...params }),
-  generateArrayLength: () => chance.integer({ min: 1, max: 3 }),
-  selectFromArray:array => chance.pickone(array),
-  generateFilename:interfaceName => `${interfaceName}.fixture.ts`,
-  generateFileString,
-  generateLiteral,
-});
-
-export const chanceValueGeneratorBuilder = (chance?: IChance) => {
-  return chanceReplacer(chance ? chance : new Chance());
+const generateArray: ArrayGenerator = ({ generateNode }) => {
+  const nodeValue = generateNode();
+  return [nodeValue];
 };
+
+const generateUnion: UnionGenerator = (values) => {
+  return `chance.pickone([${values.map((v) => printObject(v)).join(", ")}])`;
+};
+
+const generateEnum: EnumGenerator = ({ enumName }) => {
+  return `chance.pickone(Object.keys(${enumName}))`;
+};
+
+const chanceReplacer: IValueGenerator = {
+  generatePrimitive,
+  generateArray,
+  generateEnum,
+  generateFilename: (interfaceName) => `${interfaceName}.fixture.ts`,
+  generateFileString,
+  generateUnion,
+  generateLiteral
+};
+
+export const chanceValueGeneratorBuilder = () => chanceReplacer;

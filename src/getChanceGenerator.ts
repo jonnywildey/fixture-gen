@@ -1,26 +1,20 @@
 import ts from "typescript";
 
-import { InterfaceishNode } from "./interfaces";
-
 import { generateFixture } from "./generateFixture";
-import {
-  chanceValueGeneratorBuilder,
-  IChance,
-} from "./valueGenerators/chanceGenerator";
+import { chanceValueGeneratorBuilder } from "./valueGenerators/chanceGenerator";
+import { findInterface } from "./findInterface";
 
 export interface IGetChanceFixtureParams {
   filename: string;
-  interfaceLine: string;
-  chance?: IChance;
+  interfaceName: string;
 }
 
 /* Get export interface identifiers */
 export const getChanceFixture = ({
   filename,
-  interfaceLine,
-  chance,
+  interfaceName,
 }: IGetChanceFixtureParams) => {
-  const chanceValueGenerator = chanceValueGeneratorBuilder(chance);
+  const chanceValueGenerator = chanceValueGeneratorBuilder();
 
   // TODO - surely we can use the actual tsserver program?
   const program = ts.createProgram({
@@ -29,36 +23,20 @@ export const getChanceFixture = ({
   });
   const sourceFile = program.getSourceFile(filename)!;
   const typeChecker = program.getTypeChecker();
-  // filter for interface-like nodes
-  const interfaces: InterfaceishNode[] = [];
-  ts.forEachChild(sourceFile, (node) => {
-    if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) {
-      interfaces.push(node);
-    }
-  });
-  if (interfaces.length === 0) {
-    throw new Error(`No interfaces found in ${filename}`);
-  }
-  // find selected interface
-  const interfaceNameTokens = interfaceLine.split(" ");
-  const interfaceNode = interfaces.find((i) =>
-    interfaceNameTokens.includes(i.name.text)
-  );
-  if (!interfaceNode) {
-    throw new Error(`Could not find interface ${interfaceLine} in ${filename}`);
-  }
+
+  const interfaceNode = findInterface({ filename, sourceFile, interfaceName });
+  const interfaceType = typeChecker.getTypeAtLocation(interfaceNode);
+
   // Get Fixture
   const fixture = generateFixture({
-    interfaceNode,
+    interfaceType,
     typeChecker,
     valueGenerator: chanceValueGenerator,
   });
-  const fixtureFilename = chanceValueGenerator.generateFilename(
-    interfaceNode.name.text
-  );
+  const fixtureFilename = chanceValueGenerator.generateFilename(interfaceName);
   const fixtureFile = chanceValueGenerator.generateFileString({
-    fixture,
-    interfaceName: interfaceNode.name.text,
+    value: fixture,
+    interfaceName,
   });
 
   return { fixtureFilename, fixtureFile, fixture };

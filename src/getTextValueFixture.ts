@@ -1,64 +1,43 @@
 import ts from "typescript";
 
-import { InterfaceishNode } from "./interfaces";
-
 import { generateFixture } from "./generateFixture";
-import {
-  textValueGeneratorBuilder,
-  IChance,
-} from "./valueGenerators/textValueGenerator";
+import { textValueGeneratorBuilder } from "./valueGenerators/textValueGenerator";
+import { IChance } from "./valueGenerators/chanceTypes";
+import { findInterface } from "./findInterface";
 
 export interface IGetTextValueFixtureParams {
   filename: string;
-  interfaceLine: string;
+  interfaceName: string;
   chance?: IChance;
 }
 
 /* Get export interface identifiers */
 export const getTextValueFixture = ({
   filename,
-  interfaceLine,
-  chance
+  interfaceName,
+  chance,
 }: IGetTextValueFixtureParams) => {
   const textValueGenerator = textValueGeneratorBuilder(chance);
 
-  // TODO - surely we can use the actual tsserver program?
   const program = ts.createProgram({
     rootNames: [filename],
-    options: {}
+    options: {},
   });
   const sourceFile = program.getSourceFile(filename)!;
   const typeChecker = program.getTypeChecker();
-  // filter for interface-like nodes
-  const interfaces: InterfaceishNode[] = [];
-  ts.forEachChild(sourceFile,node => {
-    if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) {
-      interfaces.push(node);
-    }
-  });
-  if (interfaces.length === 0) {
-    throw new Error(`No interfaces found in ${filename}`);
-  }
-  // find selected interface
-  const interfaceNameTokens = interfaceLine.split(" ");
-  const interfaceNode = interfaces.find(i =>
-    interfaceNameTokens.includes(i.name.text)
-  );
-  if (!interfaceNode) {
-    throw new Error(`Could not find interface ${interfaceLine} in ${filename}`);
-  }
-  // Get Fixture
+
+  const interfaceNode = findInterface({ filename, sourceFile, interfaceName });
+  const interfaceType = typeChecker.getTypeAtLocation(interfaceNode);
+
   const fixture = generateFixture({
-    interfaceNode,
+    interfaceType,
     typeChecker,
-    valueGenerator: textValueGenerator
+    valueGenerator: textValueGenerator,
   });
-  const fixtureFilename = textValueGenerator.generateFilename(
-    interfaceNode.name.text
-  );
+  const fixtureFilename = textValueGenerator.generateFilename(interfaceName);
   const fixtureFile = textValueGenerator.generateFileString({
-    fixture,
-    interfaceName: interfaceNode.name.text
+    value: fixture,
+    interfaceName,
   });
 
   return { fixtureFilename, fixtureFile, fixture };

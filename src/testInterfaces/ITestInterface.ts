@@ -62,3 +62,7 @@ export type ITestType = {
 export interface IExtendTestInterface extends ITestInterface {
   z: string;
 }
+
+export interface IExtendPartialTestInterface extends Partial<ITestInterface> {
+  z: string;
+}
