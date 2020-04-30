@@ -93,7 +93,7 @@ const generateFileString: FileStringGenerator = ({
   interfaceName,
 }) => {
   const fixtureString = printObject(fixture);
-  return `export const ${interfaceName}Fixture = ${fixtureString};`;
+  return `export const ${interfaceName}Fixture: ${interfaceName} = ${fixtureString};`;
 };
 
 const generateLiteral: LiteralGenerator = ({ kind, text }) => {

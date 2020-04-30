@@ -55,6 +55,7 @@ config/replica.json
 
 # TypeScript compilation
 build
+dist
 out
 
 lib/services/budgetPlannerService/proto
