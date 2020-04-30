@@ -28,3 +28,12 @@ jobs:
     # Runs a single command using the runners shell
     - name: unit-test
       run: npm test
+
+  coverage:
+    steps:
+    - uses: actions/checkout@master
+    - uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage/clover.xml # optional
+        name: ts-fixture-generator # optional
+        fail_ci_if_error: true # optional (default = false)
