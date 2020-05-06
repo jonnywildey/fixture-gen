@@ -5,7 +5,7 @@ import {
   ArrayGenerator,
   PrimitiveGenerator,
   UnionGenerator,
-  EnumGenerator
+  EnumGenerator,
 } from "../IValueGenerator";
 import ts from "typescript";
 import { printObject } from "./printObject";
@@ -19,7 +19,7 @@ import {
   matchesName,
   matchesPhone,
   matchesPostcode,
-  matcheslastName
+  matcheslastName,
 } from "./matchers";
 
 const wrapQuotes = (str: string) => `"${str}"`;
@@ -78,11 +78,20 @@ const generatePrimitive: PrimitiveGenerator = ({ kind, name }) => {
   return `chance.guid()`;
 };
 
+const insert = (src: string, index: number, toInsert: string) => {
+  return src.substr(0, index) + toInsert + src.substr(index);
+};
+
 const generateFileString: FileStringGenerator = ({
   value: fixture,
-  interfaceName
+  interfaceName,
 }) => {
-  const fixtureString = printObject(fixture);
+  const withoutOverrides = printObject(fixture);
+  const fixtureString = insert(
+    withoutOverrides,
+    withoutOverrides.length - 2,
+    ",\n  ...overrides"
+  );
   const pretext = `import Chance from "chance";
 
 const chanceDate = (chance) => (chance.date({ max: new Date('2090-01-01'), min: new Date('1950-01-01')}) as Date).toISOString();
@@ -121,7 +130,7 @@ const chanceReplacer: IValueGenerator = {
   generateFilename: (interfaceName) => `${interfaceName}.fixture.ts`,
   generateFileString,
   generateUnion,
-  generateLiteral
+  generateLiteral,
 };
 
 export const chanceValueGeneratorBuilder = () => chanceReplacer;
