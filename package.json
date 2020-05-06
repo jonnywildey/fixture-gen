@@ -5,8 +5,8 @@
     "type": "git",
     "url": "https://github.com/jonnywildey/fixture-gen"
   },
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "Generate fixtures from typescript interfaces",
   "publisher": "jonnywildey",
   "engines": {
     "vscode": "^1.41.1"

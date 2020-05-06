@@ -145,4 +145,27 @@ describe("getChanceFixture Tests", () => {
       postcode: "chance.postcode()",
     });
   });
+
+  it("Adds overrides and imports", () => {
+    const fixture = getChanceFixture({
+      filename: testInterfaceAbsolutePath,
+      interfaceName: "ITestType",
+    });
+
+    expect(fixture.fixtureFile).toEqual(
+`import Chance from "chance";
+
+const chanceDate = (chance) => (chance.date({ max: new Date('2090-01-01'), min: new Date('1950-01-01')}) as Date).toISOString();
+
+export const ITestTypeFixtureGenerator = (overrides: Partial<ITestType>, chance?: InstanceType<typeof Chance>) => ({
+  a: chance.string(),
+  b: chance.integer({ min: 0, max: 50 }),
+  c: chance.bool(),
+  d: {
+    e: chance.integer({ min: 0, max: 50 }),
+    f: chance.string()
+  },
+  ...overrides
+});`)
+  });
 });
